@@ -51,8 +51,22 @@
             font-weight: bold; 
             cursor: pointer;
             transition: 0.3s;
+            margin-bottom: 10px;
         }
         .btn-action:hover { opacity: 0.9; }
+
+        /* Estilo para botón eliminar */
+        .btn-delete {
+            background: transparent;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-delete:hover { background: #e74c3c; color: white; }
 
         .badge { padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; text-transform: uppercase; }
         .status-pendiente { background: #fff3cd; color: #856404; }
@@ -75,12 +89,13 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
       authDomain: "siap-inspecciones.firebaseapp.com",
       projectId: "siap-inspecciones",
+      storageBucket: "siap-inspecciones.firebasestorage.app",
       messagingSenderId: "285150830693",
       appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
     };
@@ -131,6 +146,9 @@
                     <button class="btn-action" onclick="window.guardarEvaluacion('${id}')">
                         ${isPendiente ? 'Registrar Evaluación' : 'Actualizar Nota'}
                     </button>
+                    <button class="btn-delete" onclick="window.eliminarRegistro('${id}')">
+                        <i class="fas fa-trash-alt"></i> Eliminar Hallazgo
+                    </button>
                 </div>
             `;
 
@@ -154,6 +172,18 @@
         } catch (e) {
             console.error(e);
             alert("❌ Error al conectar con la base de datos.");
+        }
+    };
+
+    window.eliminarRegistro = async (id) => {
+        if(confirm("¿Está seguro de eliminar este hallazgo? Esta acción no se puede deshacer.")) {
+            try {
+                await deleteDoc(doc(db, "inspecciones", id));
+                alert("🗑️ Registro eliminado.");
+            } catch (e) {
+                console.error(e);
+                alert("❌ Error al intentar eliminar.");
+            }
         }
     };
 </script>
