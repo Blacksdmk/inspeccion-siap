@@ -98,7 +98,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
       authDomain: "siap-inspecciones.firebaseapp.com",
@@ -111,7 +110,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Tu configuración de Cloudinary
     const CLOUD_NAME = "dasoefwk9";
     const UPLOAD_PRESET = "siap_preset";
 
@@ -147,26 +145,25 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Subiendo imágenes...';
             
-            const imageUrls = [];
-
-            // Subida a Cloudinary
-            for (let file of files) {
+            // OPTIMIZACIÓN: Subida paralela
+            const uploadPromises = Array.from(files).map(async (file) => {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
+                formData.append('quality', 'auto:eco'); // Compresión inteligente
 
                 const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                     method: 'POST',
                     body: formData
                 });
-                
                 const data = await response.json();
-                if(data.secure_url) imageUrls.push(data.secure_url);
-            }
+                return data.secure_url;
+            });
+
+            const imageUrls = await Promise.all(uploadPromises);
 
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando datos...';
 
-            // Guardado en Firestore
             await addDoc(collection(db, "inspecciones"), {
                 puente: name,
                 elemento: element,
