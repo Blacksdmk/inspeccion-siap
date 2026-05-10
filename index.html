@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAP - Inspección de Estructuras</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --secondary: #2c3e50;
+            --accent: #fdbb2d;
+            --bg: #f4f7f9;
+            --white: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Encabezado */
+        header {
+            background: linear-gradient(135deg, var(--primary), #203a43);
+            color: var(--white);
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
+        header p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
+
+        .container {
+            max-width: 1100px;
+            margin: -30px auto 40px;
+            padding: 0 15px;
+        }
+
+        /* Tarjeta de Bienvenida */
+        .welcome-box {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-left: 6px solid var(--accent);
+            margin-bottom: 30px;
+        }
+
+        /* Rejilla de Acciones Principal */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s ease;
+            border: 1px solid #e1e8ed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .menu-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 { margin: 10px 0; color: var(--primary); }
+        .menu-card p { font-size: 0.85rem; color: #666; }
+
+        /* Sección de Guía de Ayuda */
+        .help-guide {
+            background: #eef2f7;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+        .help-guide h2 { 
+            font-size: 1.4rem; 
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .step-item {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            position: relative;
+        }
+
+        .step-number {
+            background: var(--accent);
+            color: var(--primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        /* Botón de Acción Flotante para Movil */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-decoration: none;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-bridge"></i> Sistema SIAP</h1>
+    <p>Inspección de Estructuras e Infraestructura Vial</p>
+</header>
+
+<div class="container">
+    <div class="welcome-box">
+        <h2>Panel de Control</h2>
+        <p>Bienvenido al motor de inspección. Seleccione una de las opciones técnicas para comenzar el levantamiento de datos o la generación de informes PDF/Excel.</p>
+    </div>
+
+    <div class="grid-menu">
+        <a href="inspeccion.html" class="menu-card">
+            <i class="fas fa-camera-retro"></i>
+            <h3>Levantamiento</h3>
+            <p>Captura física y evidencia fotográfica de la estructura.</p>
+        </a>
+
+        <a href="calificacion.html" class="menu-card">
+            <i class="fas fa-clipboard-check"></i>
+            <h3>Calificación SIAP</h3>
+            <p>Llenado de formatos y asignación de grados de deterioro.</p>
+        </a>
+
+        <a href="reportes.html" class="menu-card">
+            <i class="fas fa-file-export"></i>
+            <h3>Informes y PDF</h3>
+            <p>Generar tabla de hallazgos y presentación de resultados.</p>
+        </a>
+    </div>
+
+    <section class="help-guide">
+        <h2><i class="fas fa-question-circle"></i> Guía Operativa</h2>
+        <div class="step-list">
+            <div class="step-item">
+                <span class="step-number">1</span>
+                <strong>Captura:</strong> Inicie con la toma de fotos generales y específicas de cada daño detectado.
+            </div>
+            <div class="step-item">
+                <span class="step-number">2</span>
+                <strong>Evaluación:</strong> Clasifique los hallazgos según gravedad y extensión (Escala SIAP).
+            </div>
+            <div class="step-item">
+                <span class="step-number">3</span>
+                <strong>Sincronización:</strong> Los datos se guardan en Firebase para respaldo automático.
+            </div>
+            <div class="step-item">
+                <span class="step-number">4</span>
+                <strong>Exportación:</strong> Descargue el informe PDF y la presentación de hallazgos más relevantes.
+            </div>
+        </div>
+    </section>
+</div>
+
+<a href="inspeccion.html" class="fab" title="Nueva Inspección">
+    <i class="fas fa-plus"></i>
+</a>
+
+<footer>
+    &copy; 2026 Blacksdmk | Sistema de Inspección de Estructuras bajo Metodología SIAP
+</footer>
+
+</body>
+</html>
