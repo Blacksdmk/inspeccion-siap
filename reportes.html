@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes SIAP - Generador</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .header-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
+        .btn-back { text-decoration: none; color: var(--primary); font-weight: bold; }
+        
+        .controls { background: var(--white); padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .btn-pdf { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* Estilo del Reporte (Lo que saldrá en el PDF) */
+        #report-content { background: white; padding: 40px; border-radius: 5px; min-height: 1000px; }
+        .report-header { text-align: center; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #f2f2f2; color: var(--primary); padding: 12px; border: 1px solid #ddd; text-align: left; }
+        td { padding: 12px; border: 1px solid #ddd; vertical-align: top; }
+        
+        .img-report { width: 150px; height: 100px; object-fit: cover; border-radius: 4px; margin: 2px; }
+        .grado-box { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; }
+        .g1 { background: #27ae60; } .g2 { background: #2ecc71; } .g3 { background: #f1c40f; } 
+        .g4 { background: #e67e22; } .g5 { background: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="header-nav">
+    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Panel Principal</a>
+    <div class="controls">
+        <button class="btn-pdf" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Descargar Reporte Técnico</button>
+    </div>
+</div>
+
+<div id="report-content">
+    <div class="report-header">
+        <h1 style="margin:0;">INFORME DE INSPECCIÓN ESTRUCTURAL</h1>
+        <p style="margin:5px 0; color: #666;">Metodología SIAP (Sistema de Inspección de Puentes)</p>
+        <p id="report-date" style="font-weight: bold;"></p>
+    </div>
+
+    <table id="table-results">
+        <thead>
+            <tr>
+                <th>Estructura / Ubicación</th>
+                <th>Elemento</th>
+                <th>Hallazgo Detectado</th>
+                <th>Evidencia Fotográfica</th>
+                <th>Calificación</th>
+            </tr>
+        </thead>
+        <tbody id="report-body">
+            </tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
+      authDomain: "siap-inspecciones.firebaseapp.com",
+      projectId: "siap-inspecciones",
+      messagingSenderId: "285150830693",
+      appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('report-date').innerText = "Generado el: " + new Date().toLocaleDateString();
+
+    async function cargarDatos() {
+        const tbody = document.getElementById('report-body');
+        tbody.innerHTML = "<tr><td colspan='5'>Cargando registros calificados...</td></tr>";
+
+        // Solo traemos los que ya fueron calificados
+        const q = query(collection(db, "inspecciones"), where("estado", "==", "Calificado"));
+        const querySnapshot = await getDocs(q);
+        
+        tbody.innerHTML = "";
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const tr = document.createElement('tr');
+            
+            const fotosHtml = data.fotos.map(url => `<img src="${url}" class="img-report">`).join("");
+            const gradoClass = "g" + data.grado;
+
+            tr.innerHTML = `
+                <td><strong>${data.puente}</strong><br><small>${data.fecha}</small></td>
+                <td>${data.elemento}</td>
+                <td>${data.hallazgo}</td>
+                <td>${fotosHtml}</td>
+                <td style="text-align:center;">
+                    <div class="grado-box ${gradoClass}">Grado ${data.grado}</div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if(tbody.innerHTML === "") {
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No hay inspecciones calificadas para mostrar.</td></tr>";
+        }
+    }
+
+    window.exportarPDF = () => {
+        const element = document.getElementById('report-content');
+        const opt = {
+            margin: 10,
+            filename: 'Reporte_SIAP_' + new Date().getTime() + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    };
+
+    cargarDatos();
+</script>
+</body>
+</html>
