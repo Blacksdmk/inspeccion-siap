@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calificación Técnica - SIAP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; --accent: #fdbb2d; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .header-nav { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .btn-back { text-decoration: none; color: var(--primary); font-weight: bold; }
+        
+        .section-title { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-top: 30px; }
+        
+        .inspeccion-card { 
+            background: var(--white); 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+        }
+        @media (max-width: 768px) { .inspeccion-card { grid-template-columns: 1fr; } }
+
+        .info-panel h3 { margin: 0 0 10px 0; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .foto-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; scrollbar-width: thin; }
+        .foto-scroll img { height: 140px; border-radius: 10px; cursor: pointer; border: 2px solid #eee; transition: 0.2s; }
+        .foto-scroll img:hover { border-color: var(--accent); transform: scale(1.02); }
+        
+        .evaluacion-panel { 
+            background: #f8fafc; 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        label { font-weight: bold; font-size: 0.85rem; margin-bottom: 10px; display: block; color: #4a5568; }
+        select { padding: 12px; border-radius: 8px; border: 1px solid #cbd5e0; margin-bottom: 15px; font-size: 0.9rem; }
+        
+        .btn-action { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-action:hover { opacity: 0.9; }
+
+        .badge { padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; text-transform: uppercase; }
+        .status-pendiente { background: #fff3cd; color: #856404; }
+        .status-calificado { background: #c6f6d5; color: #22543d; }
+    </style>
+</head>
+<body>
+
+<div class="header-nav">
+    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Volver al Panel</a>
+</div>
+
+<h2 class="section-title"><i class="fas fa-tasks"></i> Hallazgos por Evaluar</h2>
+<div id="lista-pendientes">
+    <p style="padding: 20px; color: #666;">Buscando registros pendientes...</p>
+</div>
+
+<h2 class="section-title"><i class="fas fa-check-double"></i> Historial Calificado</h2>
+<div id="lista-calificados"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
+      authDomain: "siap-inspecciones.firebaseapp.com",
+      projectId: "siap-inspecciones",
+      messagingSenderId: "285150830693",
+      appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    onSnapshot(collection(db, "inspecciones"), (snapshot) => {
+        const pendientes = document.getElementById('lista-pendientes');
+        const calificados = document.getElementById('lista-calificados');
+        
+        pendientes.innerHTML = "";
+        calificados.innerHTML = "";
+
+        let contPendientes = 0;
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            
+            const card = document.createElement('div');
+            card.className = 'inspeccion-card';
+            
+            const fotosHtml = data.fotos.map(url => `<img src="${url}" title="Ver imagen original" onclick="window.open('${url}')">`).join("");
+            
+            const isPendiente = (data.estado === 'Pendiente');
+            if(isPendiente) contPendientes++;
+
+            card.innerHTML = `
+                <div class="info-panel">
+                    <h3>
+                        ${data.puente} 
+                        <span class="badge ${isPendiente ? 'status-pendiente' : 'status-calificado'}">${data.estado}</span>
+                    </h3>
+                    <p style="margin: 5px 0;"><strong>${data.elemento}</strong> | <small>${data.fecha}</small></p>
+                    <p style="font-style: italic; color: #4a5568;">"${data.hallazgo || 'Sin descripción'}"</p>
+                    <div class="foto-scroll">${fotosHtml}</div>
+                </div>
+                <div class="evaluacion-panel">
+                    <label><i class="fas fa-signal"></i> GRADO DE DAÑO (SIAP)</label>
+                    <select id="grado-${id}">
+                        <option value="1" ${data.grado == '1' ? 'selected' : ''}>1 - Daño nulo o mínimo</option>
+                        <option value="2" ${data.grado == '2' ? 'selected' : ''}>2 - Deterioro leve</option>
+                        <option value="3" ${data.grado == '3' ? 'selected' : ''}>3 - Daño moderado</option>
+                        <option value="4" ${data.grado == '4' ? 'selected' : ''}>4 - Daño severo</option>
+                        <option value="5" ${data.grado == '5' ? 'selected' : ''}>5 - Fallo inminente</option>
+                    </select>
+                    <button class="btn-action" onclick="window.guardarEvaluacion('${id}')">
+                        ${isPendiente ? 'Registrar Evaluación' : 'Actualizar Nota'}
+                    </button>
+                </div>
+            `;
+
+            if(isPendiente) pendientes.appendChild(card);
+            else calificados.appendChild(card);
+        });
+
+        if(contPendientes === 0) pendientes.innerHTML = "<p style='color:green; padding:10px;'>✅ No hay hallazgos pendientes de revisión.</p>";
+    });
+
+    window.guardarEvaluacion = async (id) => {
+        const grado = document.getElementById(`grado-${id}`).value;
+        const docRef = doc(db, "inspecciones", id);
+        
+        try {
+            await updateDoc(docRef, {
+                grado: grado,
+                estado: "Calificado"
+            });
+            alert("✅ Evaluación guardada correctamente.");
+        } catch (e) {
+            console.error(e);
+            alert("❌ Error al conectar con la base de datos.");
+        }
+    };
+</script>
+</body>
+</html>
