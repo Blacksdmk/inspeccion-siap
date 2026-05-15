@@ -3,189 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calificación Técnica - SIAP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>SIAP - Calificación Técnica</title>
     <style>
-        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; --accent: #fdbb2d; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .header-nav { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .btn-back { text-decoration: none; color: var(--primary); font-weight: bold; }
-        
-        .section-title { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-top: 30px; }
-        
-        .inspeccion-card { 
-            background: var(--white); 
-            border-radius: 15px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            display: grid;
-            grid-template-columns: 1fr 280px;
-            gap: 20px;
+        :root {
+            --primary-dark: #2c3e50;
+            --success-green: #27ae60;
+            --bg-light: #f4f4f9;
+            --border-color: #e0e0e0;
+            --readonly-bg: #ececec;
         }
-        @media (max-width: 768px) { .inspeccion-card { grid-template-columns: 1fr; } }
 
-        .info-panel h3 { margin: 0 0 10px 0; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .foto-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; scrollbar-width: thin; }
-        .foto-scroll img { height: 140px; border-radius: 10px; cursor: pointer; border: 2px solid #eee; transition: 0.2s; }
-        .foto-scroll img:hover { border-color: var(--accent); transform: scale(1.02); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: #333; margin: 20px; line-height: 1.6; }
+        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        .evaluacion-panel { 
-            background: #f8fafc; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        label { font-weight: bold; font-size: 0.85rem; margin-bottom: 10px; display: block; color: #4a5568; }
-        select { padding: 12px; border-radius: 8px; border: 1px solid #cbd5e0; margin-bottom: 15px; font-size: 0.9rem; }
+        h2 { border-bottom: 3px solid var(--primary-dark); color: var(--primary-dark); padding-bottom: 10px; margin-top: 0; text-align: center; }
+        p.subtitle { text-align: center; font-weight: bold; color: #666; margin-bottom: 30px; }
+
+        .section { margin-bottom: 25px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        .status-header { background: var(--primary-dark); color: white; padding: 12px 15px; font-weight: bold; letter-spacing: 1px; }
         
-        .btn-action { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 10px;
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
+        
+        label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.85em; color: var(--primary-dark); }
+        input, select, textarea { 
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; transition: border 0.3s, box-shadow 0.3s; 
         }
-        .btn-action:hover { opacity: 0.9; }
+        input:focus, select:focus { border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(44, 62, 80, 0.2); outline: none; }
+        
+        input[readonly] { background-color: var(--readonly-bg); border-color: #ddd; cursor: not-allowed; color: #555; }
 
-        /* Estilo para botón eliminar */
-        .btn-delete {
-            background: transparent;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.3s;
+        .btn-save { 
+            background: var(--success-green); color: white; padding: 15px; border: none; border-radius: 6px; 
+            cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; transition: background 0.3s; 
         }
-        .btn-delete:hover { background: #e74c3c; color: white; }
-
-        .badge { padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; text-transform: uppercase; }
-        .status-pendiente { background: #fff3cd; color: #856404; }
-        .status-calificado { background: #c6f6d5; color: #22543d; }
+        .btn-save:hover { background: #219150; }
+        
+        .scale-info { font-size: 0.75em; color: #7f8c8d; margin-left: 20px; margin-bottom: -10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th { background: #f8f9fa; color: var(--primary-dark); border: 1px solid var(--border-color); padding: 12px; }
+        td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="header-nav">
-    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Volver al Panel</a>
+<div class="container">
+    <h2>SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h2>
+    <p class="subtitle">FORMATO DE INSPECCIÓN VISUAL DE ESTRUCTURAS</p>
+    
+    <div class="section">
+        <div class="status-header">1. DATOS GENERALES DE IDENTIFICACIÓN</div>
+        <div class="grid">
+            <div>
+                <label>(001) RESPONSABLE DEL PUENTE</label>
+                <input type="text" id="resp_001" placeholder="Nombre completo del inspector">
+            </div>
+            <div>
+                <label>FECHA DE INSPECCIÓN</label>
+                <input type="date" id="fecha_inspeccion">
+            </div>
+            <div>
+                <label>(002) NOMBRE DEL PUENTE</label>
+                <input type="text" id="nombre_002" list="puentes-list" oninput="SiapCore.autoFill(this.value)" placeholder="Buscar estructura...">
+                <datalist id="puentes-list"></datalist>
+            </div>
+            <div>
+                <label>(003) NÚMERO / CADENAMIENTO</label>
+                <input type="text" id="num_003" readonly placeholder="Automático">
+            </div>
+            <div>
+                <label>(004) ESTADO</label>
+                <input type="text" id="estado_004" readonly placeholder="Automático">
+            </div>
+            <div>
+                <label>(005/006) MUNICIPIO / LOCALIDAD</label>
+                <input type="text" id="mun_005" readonly placeholder="Automático">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="status-header">2. CONDICIÓN GENERAL DEL PUENTE</div>
+        <p class="scale-info">Escala de evaluación: 5 (Excelente) a 0 (Falla/Colapso)</p>
+        <div class="grid">
+            <div>
+                <label>(004) HUNDIMIENTO</label>
+                <select id="hun_004">
+                    <option value="5">5.- Excelente / Ninguno</option>
+                    <option value="4">4.- Buena</option>
+                    <option value="1">1.- Mala</option>
+                </select>
+            </div>
+            <div>
+                <label>(005) DESPLOME</label>
+                <select id="des_005"><option value="5">5</option><option value="4" selected>4</option><option value="1">1</option></select>
+            </div>
+            <div>
+                <label>(006) SOCAVACIÓN</label>
+                <select id="soc_006"><option value="5">5</option><option value="4">4</option><option value="1">1</option></select>
+            </div>
+            <div>
+                <label>(007) FLECHAS</label>
+                <select id="fle_007"><option value="5">5</option><option value="4" selected>4</option><option value="1">1</option></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="status-header">3. EVALUACIÓN POR ELEMENTOS</div>
+        <div style="overflow-x: auto; padding: 0 15px 20px 15px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Elemento Estructural</th>
+                        <th>(EF) Estado</th>
+                        <th>(M) Mant.</th>
+                        <th>(U) Urgencia</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-elementos"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="status-header">4. EVALUACIÓN FINAL Y PRIORIZACIÓN</div>
+        <div class="grid">
+            <div>
+                <label>(070) EVALUACIÓN SUPERFICIE DE RODAMIENTO</label>
+                <select id="eval_rod_070">
+                    <option value="1">1.- Corto plazo (12 meses)</option>
+                    <option value="2">2.- Mediano plazo (2 años)</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>(073) COMENTARIOS ADICIONALES</label>
+                <textarea id="comentarios_073" rows="4" placeholder="Observaciones técnicas..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-save" onclick="SiapCore.save()">GUARDAR EN SISTEMA SIAP</button>
 </div>
 
-<h2 class="section-title"><i class="fas fa-tasks"></i> Hallazgos por Evaluar</h2>
-<div id="lista-pendientes">
-    <p style="padding: 20px; color: #666;">Buscando registros pendientes...</p>
-</div>
+<script>
+/**
+ * SiapCore: Lógica de alta fidelidad para inspección de puentes.
+ */
+const SiapCore = (() => {
+    const ELEMENTOS = [
+        "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
+        "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
+        "Losa (029)", "Trabes (032)", "Diafragmas (035)", "Sistemas de Unión (038)", 
+        "Apoyos (041)", "Pilas / Columnas (044)", "Cabezales (047)", "Estribos (050)", 
+        "Muros (053)", "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
+        "Accesos (065)", "Otros (068)"
+    ];
 
-<h2 class="section-title"><i class="fas fa-check-double"></i> Historial Calificado</h2>
-<div id="lista-calificados"></div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
-      authDomain: "siap-inspecciones.firebaseapp.com",
-      projectId: "siap-inspecciones",
-      storageBucket: "siap-inspecciones.firebasestorage.app",
-      messagingSenderId: "285150830693",
-      appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    onSnapshot(collection(db, "inspecciones"), (snapshot) => {
-        const pendientes = document.getElementById('lista-pendientes');
-        const calificados = document.getElementById('lista-calificados');
-        
-        pendientes.innerHTML = "";
-        calificados.innerHTML = "";
-
-        let contPendientes = 0;
-
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const id = docSnap.id;
+    return {
+        init: () => {
+            const tbody = document.getElementById('tabla-elementos');
+            tbody.innerHTML = ELEMENTOS.map((el, i) => `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 10px; text-align: left; font-weight: 500;">${el}</td>
+                    <td style="padding: 5px;"><select id="ef_${i}"><option>5</option><option selected>4</option><option>1</option></select></td>
+                    <td style="padding: 5px;"><select id="m_${i}"><option>0</option><option>1</option><option>2</option></select></td>
+                    <td style="padding: 5px;"><select id="u_${i}"><option>0</option><option>1</option><option>2</option></select></td>
+                </tr>
+            `).join('');
             
-            const card = document.createElement('div');
-            card.className = 'inspeccion-card';
-            
-            const fotosHtml = data.fotos.map(url => `<img src="${url}" title="Ver imagen original" onclick="window.open('${url}')">`).join("");
-            
-            const isPendiente = (data.estado === 'Pendiente');
-            if(isPendiente) contPendientes++;
-
-            card.innerHTML = `
-                <div class="info-panel">
-                    <h3>
-                        ${data.puente} 
-                        <span class="badge ${isPendiente ? 'status-pendiente' : 'status-calificado'}">${data.estado}</span>
-                    </h3>
-                    <p style="margin: 5px 0;"><strong>${data.elemento}</strong> | <small>${data.fecha}</small></p>
-                    <p style="font-style: italic; color: #4a5568;">"${data.hallazgo || 'Sin descripción'}"</p>
-                    <div class="foto-scroll">${fotosHtml}</div>
-                </div>
-                <div class="evaluacion-panel">
-                    <label><i class="fas fa-signal"></i> GRADO DE DAÑO (SIAP)</label>
-                    <select id="grado-${id}">
-                        <option value="1" ${data.grado == '1' ? 'selected' : ''}>1 - Daño nulo o mínimo</option>
-                        <option value="2" ${data.grado == '2' ? 'selected' : ''}>2 - Deterioro leve</option>
-                        <option value="3" ${data.grado == '3' ? 'selected' : ''}>3 - Daño moderado</option>
-                        <option value="4" ${data.grado == '4' ? 'selected' : ''}>4 - Daño severo</option>
-                        <option value="5" ${data.grado == '5' ? 'selected' : ''}>5 - Fallo inminente</option>
-                    </select>
-                    <button class="btn-action" onclick="window.guardarEvaluacion('${id}')">
-                        ${isPendiente ? 'Registrar Evaluación' : 'Actualizar Nota'}
-                    </button>
-                    <button class="btn-delete" onclick="window.eliminarRegistro('${id}')">
-                        <i class="fas fa-trash-alt"></i> Eliminar Hallazgo
-                    </button>
-                </div>
-            `;
-
-            if(isPendiente) pendientes.appendChild(card);
-            else calificados.appendChild(card);
-        });
-
-        if(contPendientes === 0) pendientes.innerHTML = "<p style='color:green; padding:10px;'>✅ No hay hallazgos pendientes de revisión.</p>";
-    });
-
-    window.guardarEvaluacion = async (id) => {
-        const grado = document.getElementById(`grado-${id}`).value;
-        const docRef = doc(db, "inspecciones", id);
-        
-        try {
-            await updateDoc(docRef, {
-                grado: grado,
-                estado: "Calificado"
-            });
-            alert("✅ Evaluación guardada correctamente.");
-        } catch (e) {
-            console.error(e);
-            alert("❌ Error al conectar con la base de datos.");
-        }
-    };
-
-    window.eliminarRegistro = async (id) => {
-        if(confirm("¿Está seguro de eliminar este hallazgo? Esta acción no se puede deshacer.")) {
-            try {
-                await deleteDoc(doc(db, "inspecciones", id));
-                alert("🗑️ Registro eliminado.");
-            } catch (e) {
-                console.error(e);
-                alert("❌ Error al intentar eliminar.");
+            // Carga de datalist si puentesDB está disponible
+            if (typeof puentesDB !== 'undefined') {
+                const dl = document.getElementById('puentes-list');
+                Object.keys(puentesDB).forEach(id => {
+                    const opt = document.createElement('option');
+                    opt.value = puentesDB[id].nombre;
+                    dl.appendChild(opt);
+                });
             }
+        },
+        autoFill: (val) => {
+            if (typeof puentesDB === 'undefined') return;
+            const entry = Object.entries(puentesDB).find(([id, data]) => data.nombre === val);
+            if (entry) {
+                document.getElementById('num_003').value = entry[0];
+                const ubi = entry[1].ubi.split(' / ');
+                document.getElementById('estado_004').value = ubi[0] || "";
+                document.getElementById('mun_005').value = ubi[1] || "";
+            }
+        },
+        save: () => {
+            if (!document.getElementById('resp_001').value) {
+                alert("Error: Ingrese el nombre del responsable.");
+                return;
+            }
+            alert("Procesando inspección estructural... Datos listos.");
         }
     };
+})();
+
+document.addEventListener('DOMContentLoaded', SiapCore.init);
 </script>
 </body>
 </html>
