@@ -52,17 +52,22 @@
     <p>Inventario y Gestión de Estructuras</p>
 </div>
 
-<div class="container">
-    <div class="setup-card">
-        <h2><i class="fas fa-search"></i> Selección de Estructura</h2>
-        <label>Puente o PIV (Cadenamiento / Nombre)</label>
-        <select id="bridge-selector" onchange="updateBridgeData()">
-            <option value="">-- Seleccionar de Inventario General --</option>
-            <option value="129955">129+955 - PIPR (Rioverde)</option>
-            <option value="76487">76+487 - P. LAGUNA LARGA</option>
-            <option value="70686">70+686 - ENTRONQUE PITAHAYA</option>
-            <option value="8320">08+320 - PUENTE CAMARONES</option>
-            <option value="686">00+686 - PEATONAL NARANJOS</option>
+<div class="setup-card">
+    <h2><i class="fas fa-search"></i> Selección de Estructura</h2>
+    <label>Puente o PIV (Cadenamiento / Nombre)</label>
+    <select id="bridge-selector" onchange="updateBridgeData()">
+        <option value="">-- Seleccionar de Inventario General (207 registros) --</option>
+    </select>
+
+    <div id="bridge-preview" style="display: none;">
+        <div class="bridge-info-preview">
+            <div class="info-item"><span>Nombre Oficial</span><strong id="p-nombre">---</strong></div>
+            <div class="info-item"><span>Ubicación (Edo/Mun)</span><strong id="p-ubi">---</strong></div>
+            <div class="info-item"><span>Tipo de Estructura</span><strong id="p-tipo">---</strong></div>
+            <div class="info-item"><span>Longitud</span><strong id="p-long">---</strong></div>
+        </div>
+    </div>
+</div>
         </select>
 
         <div id="bridge-preview" style="display: none;">
