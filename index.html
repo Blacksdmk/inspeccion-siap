@@ -6,136 +6,132 @@
     <title>Panel de Control - SIAP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; --accent: #fdbb2d; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
+        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; --accent: #fdbb2d; --text: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); }
         
-        .header { background: var(--primary); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 30px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
-        .header p { margin: 10px 0 0 0; opacity: 0.8; font-size: 0.9rem; }
-
-        .container { max-width: 800px; margin: -30px auto 40px; padding: 0 20px; }
+        .header { background: var(--primary); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 30px 30px; }
+        .header h1 { margin: 0; font-size: 1.8rem; }
         
-        /* Tarjeta de Selección de Puente */
+        .container { max-width: 900px; margin: -30px auto 40px; padding: 0 20px; }
+        
+        /* Configuración del Puente */
         .setup-card { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        .setup-card h2 { color: var(--primary); font-size: 1.2rem; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .setup-card h2 { color: var(--primary); font-size: 1.2rem; margin-top: 0; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 5px; }
-        select, input { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 1rem; background: #f8fafc; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin: 15px 0 5px 0; }
+        select { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 1rem; background: #f8fafc; cursor: pointer; }
         
         .bridge-info-preview { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
-            background: #f1f5f9; padding: 15px; border-radius: 12px; margin-top: 15px;
-            border-left: 4px solid var(--accent);
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; 
+            background: #f1f5f9; padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 5px solid var(--accent);
         }
-        .info-item span { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
-        .info-item strong { font-size: 0.9rem; color: var(--primary); }
+        .info-item span { display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: bold; }
+        .info-item strong { font-size: 0.95rem; color: var(--primary); }
 
-        /* Menú de Módulos */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+        /* Menú con explicaciones */
+        .menu-list { display: flex; flex-direction: column; gap: 15px; }
         .menu-item { 
-            background: var(--white); padding: 25px; border-radius: 20px; text-align: center;
-            text-decoration: none; color: var(--primary); transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #edf2f7;
+            background: var(--white); padding: 20px; border-radius: 15px; display: flex; align-items: center;
+            text-decoration: none; color: var(--text); transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid transparent;
         }
-        .menu-item:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: var(--accent); }
-        .menu-item i { font-size: 2.2rem; margin-bottom: 15px; color: var(--accent); }
-        .menu-item span { display: block; font-weight: bold; font-size: 1rem; }
+        .menu-item:hover { transform: translateX(10px); border-color: var(--accent); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .menu-item.disabled { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
         
-        .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        .icon-box { width: 60px; height: 60px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 20px; }
+        .icon-box i { font-size: 1.5rem; color: var(--primary); }
+        
+        .text-box h3 { margin: 0; font-size: 1.1rem; color: var(--primary); }
+        .text-box p { margin: 5px 0 0 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1>SISTEMA SIAP</h1>
-    <p>Gestión de Inspección Estructural de Puentes</p>
+    <p>Inventario y Gestión de Estructuras</p>
 </div>
 
 <div class="container">
     <div class="setup-card">
-        <h2><i class="fas fa-bridge"></i> Configuración de Trabajo</h2>
-        <div class="form-group">
-            <label>Seleccionar Puente (Número de Inventario)</label>
-            <select id="bridge-selector" onchange="updateBridgeData()">
-                <option value="">-- Seleccione un puente --</option>
-                <option value="1">1 - PIPR 129+955</option>
-                <option value="2">2 - Puente Central - CD VALLES</option>
-                <option value="3">3 - Puente El Naranjo</option>
-            </select>
-        </div>
+        <h2><i class="fas fa-search"></i> Selección de Estructura</h2>
+        <label>Puente o PIV (Cadenamiento / Nombre)</label>
+        <select id="bridge-selector" onchange="updateBridgeData()">
+            <option value="">-- Seleccionar de Inventario General --</option>
+            <option value="129955">129+955 - PIPR (Rioverde)</option>
+            <option value="76487">76+487 - P. LAGUNA LARGA</option>
+            <option value="70686">70+686 - ENTRONQUE PITAHAYA</option>
+            <option value="8320">08+320 - PUENTE CAMARONES</option>
+            <option value="686">00+686 - PEATONAL NARANJOS</option>
+        </select>
 
         <div id="bridge-preview" style="display: none;">
             <div class="bridge-info-preview">
-                <div class="info-item"><span>Estado</span><strong id="p-estado">---</strong></div>
-                <div class="info-item"><span>Municipio</span><strong id="p-municipio">---</strong></div>
-                <div class="info-item"><span>Localidad</span><strong id="p-localidad">---</strong></div>
-                <div class="info-item"><span>Responsable</span><strong id="p-responsable">Ing. Residente</strong></div>
+                <div class="info-item"><span>Nombre Oficial</span><strong id="p-nombre">---</strong></div>
+                <div class="info-item"><span>Ubicación (Edo/Mun)</span><strong id="p-ubi">---</strong></div>
+                <div class="info-item"><span>Tipo de Estructura</span><strong id="p-tipo">---</strong></div>
+                <div class="info-item"><span>Longitud</span><strong id="p-long">---</strong></div>
             </div>
         </div>
     </div>
 
-    <div class="menu-grid">
-        <a href="inspeccion.html" class="menu-item btn-disabled" id="link-inspeccion">
-            <i class="fas fa-clipboard-check"></i>
-            <span>Levantamiento</span>
+    <div class="menu-list">
+        <a href="inspeccion.html" class="menu-item disabled" id="link-inspeccion">
+            <div class="icon-box"><i class="fas fa-edit"></i></div>
+            <div class="text-box">
+                <h3>Levantamiento de Inspección</h3>
+                <p>Registrar nuevos hallazgos fotográficos, seleccionar fallas predefinidas por categorías (Super/Subestructura) y condiciones generales.</p>
+            </div>
         </a>
+
         <a href="calificacion.html" class="menu-item">
-            <i class="fas fa-star"></i>
-            <span>Calificación</span>
+            <div class="icon-box"><i class="fas fa-calculator"></i></div>
+            <div class="text-box">
+                <h3>Calificación Técnica SIAP</h3>
+                <p>Evaluar el grado de daño (1-5) de los hallazgos registrados y actualizar el historial de mantenimiento.</p>
+            </div>
         </a>
+
         <a href="reportes.html" class="menu-item">
-            <i class="fas fa-file-pdf"></i>
-            <span>Informes</span>
+            <div class="icon-box"><i class="fas fa-file-invoice"></i></div>
+            <div class="text-box">
+                <h3>Generación de Reportes</h3>
+                <p>Exportar el formato oficial con datos subrayados, inyectando automáticamente los campos "No Aplica" y tablas fotográficas.</p>
+            </div>
         </a>
     </div>
 </div>
 
 <script>
-    // Base de datos de puentes extraída de tu formato oficial
+    // Base de datos sincronizada con "INVENTARIO Genaral.csv"
     const puentesDB = {
-        "1": {
-            nombre: "PIPR 129+955",
-            estado: "SAN LUIS POTOSI",
-            municipio: "RIOVERDE-CD VALLES",
-            localidad: "RIOVERDE",
-            responsable: "SCT - SIAP"
-        },
-        "2": {
-            nombre: "Puente Central",
-            estado: "SAN LUIS POTOSI",
-            municipio: "CIUDAD VALLES",
-            localidad: "CENTRO",
-            responsable: "SCT - SIAP"
-        }
+        "129955": { nombre: "PIPR 129+955", ubi: "SLP / Rioverde", tipo: "Paso Inferior", long: "16.5 m" },
+        "76487": { nombre: "P. LAGUNA LARGA", ubi: "SLP / Cd. Valles", tipo: "Paso Superior", long: "62.0 m" },
+        "70686": { nombre: "ENTRONQUE PITAHAYA", ubi: "SLP / Cd. Valles", tipo: "PIV", long: "31.6 m" },
+        "8320": { nombre: "PUENTE CAMARONES", ubi: "SLP / Cd. Valles", tipo: "Puente", long: "18.0 m" },
+        "686": { nombre: "PEATONAL NARANJOS", ubi: "SLP / Naranjos", tipo: "PIP", long: "16.5 m" }
     };
 
     function updateBridgeData() {
         const id = document.getElementById('bridge-selector').value;
         const preview = document.getElementById('bridge-preview');
-        const linkInspeccion = document.getElementById('link-inspeccion');
+        const link = document.getElementById('link-inspeccion');
 
         if (id && puentesDB[id]) {
             const p = puentesDB[id];
-            document.getElementById('p-estado').innerText = p.estado;
-            document.getElementById('p-municipio').innerText = p.municipio;
-            document.getElementById('p-localidad').innerText = p.localidad;
+            document.getElementById('p-nombre').innerText = p.nombre;
+            document.getElementById('p-ubi').innerText = p.ubi;
+            document.getElementById('p-tipo').innerText = p.tipo;
+            document.getElementById('p-long').innerText = p.long;
             
             preview.style.display = 'block';
-            linkInspeccion.classList.remove('btn-disabled');
-
-            // Guardamos en sessionStorage para que inspeccion.html lo recupere
-            sessionStorage.setItem('current_bridge', JSON.stringify({id, ...p}));
+            link.classList.remove('disabled');
+            sessionStorage.setItem('bridge_id', id);
         } else {
             preview.style.display = 'none';
-            linkInspeccion.classList.add('btn-disabled');
+            link.classList.add('disabled');
         }
     }
-
-    // Al cargar, limpiar selección previa para forzar seguridad
-    window.onload = () => {
-        sessionStorage.removeItem('current_bridge');
-    };
 </script>
 
 </body>
