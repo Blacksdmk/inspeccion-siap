@@ -3,226 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Levantamiento Físico - SIAP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>SIAP - Inspección Visual</title>
     <style>
-        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .card { background: var(--white); padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: auto; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary); }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d9e0; border-radius: 10px; box-sizing: border-box; }
-        
-        /* Estilos de la Barra de Progreso */
-        .progress-container { display: none; margin-top: 20px; background: #e2e8f0; border-radius: 10px; overflow: hidden; height: 20px; }
-        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s ease; }
-        #progress-text { display: none; text-align: center; font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: var(--primary); }
-
-        .photo-area { border: 2px dashed #b2bec3; padding: 30px; text-align: center; border-radius: 15px; cursor: pointer; background: #f8fafc; }
-        
-        /* Contenedor de miniaturas con botón de eliminar */
-        #preview-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 20px; }
-        .img-wrapper { position: relative; display: inline-block; }
-        .img-preview { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd; }
-        .btn-remove {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-
-        .btn-submit { background: var(--primary); color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: 25px; cursor: pointer; }
-        .btn-submit:disabled { background: #a0aec0; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #2c3e50; color: #2c3e50; padding-bottom: 10px; }
+        .section { margin-bottom: 25px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.9em; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .status-header { background: #2c3e50; color: white; padding: 10px; margin-top: 20px; border-radius: 4px 4px 0 0; }
+        .btn-save { background: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; margin-top: 20px; }
+        .btn-save:hover { background: #219150; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2 style="margin-top:0; color: var(--primary); text-align: center;">Nueva Inspección</h2>
-    
-    <div class="form-group">
-        <label>Nombre del Puente</label>
-        <input type="text" id="bridge-name" placeholder="Ej. Puente Coatzacoalcos I">
-    </div>
-    
-    <div class="form-group">
-        <label>Parte de la Estructura</label>
-        <select id="element-type">
-            <option value="Subestructura">Subestructura</option>
-            <option value="Superestructura">Superestructura</option>
-            <option value="Cuerpo de Rodamiento">Vialidad</option>
-        </select>
+<div class="container">
+    <h2>SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h2>
+    <p><strong>FORMATO DE INSPECCIÓN VISUAL</strong></p>
+
+    <div class="section">
+        <div class="status-header">1. DATOS GENERALES</div>
+        <div class="grid" style="margin-top:15px;">
+            <div>
+                <label>(001) RESPONSABLE DEL PUENTE</label>
+                <input type="text" id="resp_001" placeholder="Nombre del inspector">
+            </div>
+            <div>
+                <label>FECHA DE INSPECCIÓN</label>
+                <input type="date" id="fecha_inspeccion">
+            </div>
+            <div>
+                <label>(002) NOMBRE DEL PUENTE</label>
+                <input type="text" id="nombre_002" list="puentes-list" onchange="autoFillData(this.value)">
+                <datalist id="puentes-list">
+                    </datalist>
+            </div>
+            <div>
+                <label>(003) NÚMERO / CADENAMIENTO</label>
+                <input type="text" id="num_003">
+            </div>
+            <div>
+                <label>(004) ESTADO</label>
+                <input type="text" id="estado_004">
+            </div>
+            <div>
+                <label>(005/006) MUNICIPIO / LOCALIDAD</label>
+                <input type="text" id="mun_005">
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Descripción</label>
-        <textarea id="description" rows="2"></textarea>
+    <div class="section">
+        <div class="status-header">2. CONDICIÓN GENERAL DEL PUENTE</div>
+        <p style="font-size: 0.8em; color: #666;">Escala: 0-Falla, 1-Mala, 2-Regular, 3-Aceptable, 4-Buena, 5-Excelente</p>
+        <div class="grid">
+            <div>
+                <label>(004) HUNDIMIENTO</label>
+                <select id="hun_004">
+                    <option value="5">5.- Excelente / Ninguno</option>
+                    <option value="4">4.- Buena / No se aprecia</option>
+                    <option value="3">3.- Aceptable / Apenas perceptible</option>
+                    <option value="2">2.- Regular / Perceptible</option>
+                    <option value="1">1.- Mala / Muy perceptible</option>
+                    <option value="0">0.- Falla / Colapso</option>
+                </select>
+            </div>
+            <div>
+                <label>(005) DESPLOME</label>
+                <select id="des_005">
+                    <option value="5">5.- Excelente</option>
+                    <option value="4" selected>4.- No se aprecia</option>
+                    <option value="3">3.- Ligero</option>
+                    <option value="2">2.- Perceptible</option>
+                    <option value="1">1.- Significativo</option>
+                </select>
+            </div>
+            <div>
+                <label>(006) SOCAVACIÓN</label>
+                <select id="soc_006">
+                    <option value="5">5.- Ninguna</option>
+                    <option value="4">4.- No se aprecia</option>
+                    <option value="3">3.- Inicios (<10%)</option>
+                    <option value="2">2.- Moderado (10-25%)</option>
+                    <option value="1">1.- Grave (>25%)</option>
+                </select>
+            </div>
+            <div>
+                <label>(007) FLECHAS</label>
+                <select id="fle_007">
+                    <option value="5">5.- Ninguna</option>
+                    <option value="4" selected>4.- No se aprecia</option>
+                    <option value="3">3.- Apenas perceptible</option>
+                    <option value="2">2.- Notoria</option>
+                    <option value="1">1.- Peligro estructural</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="status-header">3. EVALUACIÓN POR ELEMENTOS</div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85em;">
+                <thead>
+                    <tr style="background: #ecf0f1;">
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Elemento Estructural</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">(EF) Estado</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">(M) Mant.</th>
+                        <th style="border: 1px solid #ccc; padding: 8px;">(U) Urgencia</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-elementos">
+                    <script>
+                        const elementos = [
+                            "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
+                            "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
+                            "Losa (029)", "Trabes (032)", "Diafragmas (035)", 
+                            "Sistemas de Unión (038)", "Apoyos (041)", "Pilas / Columnas (044)",
+                            "Cabezales (047)", "Estribos (050)", "Muros (053)", 
+                            "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
+                            "Accesos (065)", "Otros (068)"
+                        ];
+
+                        const tbody = document.getElementById('tabla-elementos');
+                        elementos.forEach((el, index) => {
+                            const row = `<tr>
+                                <td style="border: 1px solid #ccc; padding: 5px;">${el}</td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="ef_${index}"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select>
+                                </td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="m_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+                                </td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="u_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+                                </td>
+                            </tr>`;
+                            tbody.innerHTML += row;
+                        });
+                    </script>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="photo-area" onclick="document.getElementById('photo-input').click()">
-        <i class="fas fa-camera" style="font-size: 2rem;"></i>
-        <p>Capturar Fotos</p>
-        <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="previewImages()">
+    <div class="section">
+        <div class="status-header">4. EVALUACIÓN FINAL Y PRIORIZACIÓN</div>
+        <div class="grid" style="margin-top:15px;">
+            <div>
+                <label>(070) EVALUACIÓN SUPERFICIE DE RODAMIENTO</label>
+                <select id="eval_rod_070">
+                    <option value="1">Corto plazo (12 meses)</option>
+                    <option value="2">Mediano plazo (2 años)</option>
+                    <option value="3">Largo plazo (3 años)</option>
+                </select>
+            </div>
+            <div>
+                <label>(071) ACCIÓN EN SUPERESTRUCTURA</label>
+                <select id="acc_super_071">
+                    <option value="1">Mantenimiento Menor</option>
+                    <option value="2">Mantenimiento Mayor</option>
+                    <option value="3">Reparación</option>
+                    <option value="4">Sustitución</option>
+                </select>
+            </div>
+            <div>
+                <label>(072) ACCIÓN EN SUBESTRUCTURA</label>
+                <select id="acc_sub_072">
+                    <option value="1">Mantenimiento Menor</option>
+                    <option value="2">Mantenimiento Mayor</option>
+                    <option value="3">Reparación</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label>(073) COMENTARIOS Y OBSERVACIONES ADICIONALES</label>
+                <textarea id="comentarios_073" rows="4" placeholder="Describa hallazgos específicos..."></textarea>
+            </div>
+        </div>
     </div>
 
-    <div id="preview-container"></div>
+    <button class="btn-save" onclick="guardarInspeccion()">GUARDAR INSPECCIÓN EN SISTEMA</button>
 
-    <div class="progress-container" id="p-container">
-        <div class="progress-bar" id="p-bar"></div>
-    </div>
-    <div id="progress-text">Subiendo: 0%</div>
-
-    <button class="btn-submit" id="btn-save" onclick="processAndSave()">
-        <i class="fas fa-save"></i> Guardar Inspección
-    </button>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
-      authDomain: "siap-inspecciones.firebaseapp.com",
-      projectId: "siap-inspecciones",
-      storageBucket: "siap-inspecciones.firebasestorage.app",
-      messagingSenderId: "285150830693",
-      appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const CLOUD_NAME = "dasoefwk9";
-    const UPLOAD_PRESET = "siap_preset";
-
-    // Arreglo para manejar los archivos de forma independiente
-    let selectedFiles = [];
-
-    window.previewImages = () => {
-        const fileInput = document.getElementById('photo-input');
-        const newFiles = Array.from(fileInput.files);
-        
-        // Sumamos los archivos nuevos a los ya seleccionados
-        selectedFiles = [...selectedFiles, ...newFiles];
-        fileInput.value = ""; // Limpiamos el input para permitir re-selección
-        renderPreviews();
-    };
-
-    window.removeImage = (index) => {
-        selectedFiles.splice(index, 1);
-        renderPreviews();
-    };
-
-    function renderPreviews() {
-        const preview = document.getElementById('preview-container');
-        preview.innerHTML = "";
-        
-        selectedFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'img-wrapper';
-                wrapper.innerHTML = `
-                    <img src="${e.target.result}" class="img-preview">
-                    <div class="btn-remove" onclick="removeImage(${index})">
-                        <i class="fas fa-times"></i>
-                    </div>
-                `;
-                preview.appendChild(wrapper);
-            }
-            reader.readAsDataURL(file);
-        });
+<script>
+    // Lógica para autocompletar desde la variable puentesDB que cargamos anteriormente
+    function autoFillData(nombre) {
+        // Esta función buscará en puentesDB y llenará los campos 003, 004, 005
+        console.log("Buscando datos para:", nombre);
+        // Implementación de búsqueda lógica aquí
     }
 
-    const uploadWithProgress = (file) => {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', UPLOAD_PRESET);
-
-            xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, true);
-
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    updateProgressBar(percentComplete);
-                }
-            };
-
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    resolve(response.secure_url);
-                } else {
-                    reject('Error en subida');
-                }
-            };
-
-            xhr.onerror = () => reject('Error de conexión');
-            xhr.send(formData);
-        });
-    };
-
-    function updateProgressBar(percent) {
-        const bar = document.getElementById('p-bar');
-        const text = document.getElementById('progress-text');
-        bar.style.width = percent + '%';
-        text.innerText = `Subiendo evidencia: ${percent}%`;
+    function guardarInspeccion() {
+        alert("Procesando datos para el formato de 73 puntos...");
+        // Aquí se capturan todos los IDs para enviarlos a Firebase
     }
-
-    window.processAndSave = async () => {
-        const btn = document.getElementById('btn-save');
-        const pContainer = document.getElementById('p-container');
-        const pText = document.getElementById('progress-text');
-
-        if(selectedFiles.length === 0) return alert("Capture fotos.");
-
-        try {
-            btn.disabled = true;
-            pContainer.style.display = 'block';
-            pText.style.display = 'block';
-            
-            const imageUrls = [];
-            for(let i=0; i < selectedFiles.length; i++) {
-                pText.innerText = `Subiendo foto ${i+1} de ${selectedFiles.length}...`;
-                const url = await uploadWithProgress(selectedFiles[i]);
-                imageUrls.push(url);
-            }
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando registro...';
-            await addDoc(collection(db, "inspecciones"), {
-                puente: document.getElementById('bridge-name').value,
-                elemento: document.getElementById('element-type').value,
-                hallazgo: document.getElementById('description').value,
-                fotos: imageUrls,
-                fecha: new Date().toLocaleString(),
-                estado: "Pendiente"
-            });
-
-            alert("✅ Guardado correctamente.");
-            window.location.href = "index.html";
-
-        } catch (e) {
-            console.error(e);
-            alert("❌ Error al guardar.");
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Guardar Inspección';
-        }
-    };
 </script>
+
 </body>
 </html>
