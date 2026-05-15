@@ -2,207 +2,104 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAP - Calificación Técnica</title>
+    <title>SIAP - Formato de Inspección Visual</title>
     <style>
-        :root {
-            --primary-dark: #2c3e50;
-            --success-green: #27ae60;
-            --bg-light: #f4f4f9;
-            --border-color: #e0e0e0;
-            --readonly-bg: #ececec;
-        }
-
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: #333; margin: 20px; line-height: 1.6; }
-        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        h2 { border-bottom: 3px solid var(--primary-dark); color: var(--primary-dark); padding-bottom: 10px; margin-top: 0; text-align: center; }
-        p.subtitle { text-align: center; font-weight: bold; color: #666; margin-bottom: 30px; }
-
-        .section { margin-bottom: 25px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        .status-header { background: var(--primary-dark); color: white; padding: 12px 15px; font-weight: bold; letter-spacing: 1px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
-        
-        label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.85em; color: var(--primary-dark); }
-        input, select, textarea { 
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; transition: border 0.3s, box-shadow 0.3s; 
-        }
-        input:focus, select:focus { border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(44, 62, 80, 0.2); outline: none; }
-        
-        input[readonly] { background-color: var(--readonly-bg); border-color: #ddd; cursor: not-allowed; color: #555; }
-
-        .btn-save { 
-            background: var(--success-green); color: white; padding: 15px; border: none; border-radius: 6px; 
-            cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; transition: background 0.3s; 
-        }
-        .btn-save:hover { background: #219150; }
-        
-        .scale-info { font-size: 0.75em; color: #7f8c8d; margin-left: 20px; margin-bottom: -10px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
-        th { background: #f8f9fa; color: var(--primary-dark); border: 1px solid var(--border-color); padding: 12px; }
-        td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
+        body { background: #f0f0f0; padding: 20px; font-family: Arial, sans-serif; }
+        .sheet { background: white; width: 850px; margin: auto; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 3px solid black; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section { border: 1px solid #000; margin-bottom: 15px; }
+        .section-title { background: #eee; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; font-size: 13px; }
+        .row { display: flex; border-bottom: 1px solid #ccc; }
+        .field { padding: 10px; flex: 1; border-right: 1px solid #eee; }
+        label { display: block; font-size: 10px; color: blue; font-weight: bold; text-transform: uppercase; }
+        input, select, textarea { width: 100%; border: none; outline: none; font-size: 14px; margin-top: 5px; }
+        .btn-float { position: fixed; bottom: 20px; right: 20px; background: #27ae60; color: white; padding: 15px 30px; border-radius: 50px; cursor: pointer; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h2>
-    <p class="subtitle">FORMATO DE INSPECCIÓN VISUAL DE ESTRUCTURAS</p>
-    
+<div class="sheet">
+    <div class="header">
+        <img src="logo_ica.png" width="150" alt="ICA">
+        <div style="text-align:center">
+            <h2 style="margin:0">SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h2>
+            <h3 style="margin:0; font-style: italic;">FORMATO DE INSPECCIÓN VISUAL</h3>
+        </div>
+        <img src="logo_quantum.png" width="120" alt="QUANTUM">
+    </div>
+
     <div class="section">
-        <div class="status-header">1. DATOS GENERALES DE IDENTIFICACIÓN</div>
-        <div class="grid">
-            <div>
-                <label>(001) RESPONSABLE DEL PUENTE</label>
-                <input type="text" id="resp_001" placeholder="Nombre completo del inspector">
-            </div>
-            <div>
-                <label>FECHA DE INSPECCIÓN</label>
-                <input type="date" id="fecha_inspeccion">
-            </div>
-            <div>
-                <label>(002) NOMBRE DEL PUENTE</label>
-                <input type="text" id="nombre_002" list="puentes-list" oninput="SiapCore.autoFill(this.value)" placeholder="Buscar estructura...">
-                <datalist id="puentes-list"></datalist>
-            </div>
-            <div>
-                <label>(003) NÚMERO / CADENAMIENTO</label>
-                <input type="text" id="num_003" readonly placeholder="Automático">
-            </div>
-            <div>
-                <label>(004) ESTADO</label>
-                <input type="text" id="estado_004" readonly placeholder="Automático">
-            </div>
-            <div>
-                <label>(005/006) MUNICIPIO / LOCALIDAD</label>
-                <input type="text" id="mun_005" readonly placeholder="Automático">
-            </div>
+        <div class="section-title">1. DATOS GENERALES</div>
+        <div class="row">
+            <div class="field"><label>RESPONSABLE DEL PUENTE (001)</label><input type="text" id="v001"></div>
+            <div class="field"><label>FECHA</label><input type="date" id="fecha"></div>
+        </div>
+        <div class="row">
+            <div class="field"><label>NOMBRE DEL PUENTE (002)</label><input type="text" id="v002"></div>
+            <div class="field"><label>NÚMERO / CADENAMIENTO (003)</label><input type="text" id="v003"></div>
+        </div>
+        <div class="row">
+            <div class="field"><label>ESTADO (004)</label><input type="text" id="v004"></div>
+            <div class="field"><label>MUNICIPIO (005)</label><input type="text" id="v005"></div>
+            <div class="field"><label>LOCALIDAD (006)</label><input type="text" id="v006"></div>
         </div>
     </div>
 
     <div class="section">
-        <div class="status-header">2. CONDICIÓN GENERAL DEL PUENTE</div>
-        <p class="scale-info">Escala de evaluación: 5 (Excelente) a 0 (Falla/Colapso)</p>
-        <div class="grid">
-            <div>
-                <label>(004) HUNDIMIENTO</label>
-                <select id="hun_004">
-                    <option value="5">5.- Excelente / Ninguno</option>
-                    <option value="4">4.- Buena</option>
-                    <option value="1">1.- Mala</option>
+        <div class="section-title">2. CONDICIÓN GENERAL DEL PUENTE</div>
+        <div class="row">
+            <div class="field">
+                <label>HUNDIMIENTO (004)</label>
+                <select id="v004_c">
+                    <option value="4">4.- No se aprecia</option>
+                    <option value="1">1.- Ligero</option>
+                    <option value="2">2.- Moderado</option>
+                    <option value="3">3.- Grave</option>
+                    <option value="5">5.- No aplica</option>
                 </select>
             </div>
-            <div>
-                <label>(005) DESPLOME</label>
-                <select id="des_005"><option value="5">5</option><option value="4" selected>4</option><option value="1">1</option></select>
-            </div>
-            <div>
-                <label>(006) SOCAVACIÓN</label>
-                <select id="soc_006"><option value="5">5</option><option value="4">4</option><option value="1">1</option></select>
-            </div>
-            <div>
-                <label>(007) FLECHAS</label>
-                <select id="fle_007"><option value="5">5</option><option value="4" selected>4</option><option value="1">1</option></select>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="status-header">3. EVALUACIÓN POR ELEMENTOS</div>
-        <div style="overflow-x: auto; padding: 0 15px 20px 15px;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="text-align: left;">Elemento Estructural</th>
-                        <th>(EF) Estado</th>
-                        <th>(M) Mant.</th>
-                        <th>(U) Urgencia</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-elementos"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="status-header">4. EVALUACIÓN FINAL Y PRIORIZACIÓN</div>
-        <div class="grid">
-            <div>
-                <label>(070) EVALUACIÓN SUPERFICIE DE RODAMIENTO</label>
-                <select id="eval_rod_070">
-                    <option value="1">1.- Corto plazo (12 meses)</option>
-                    <option value="2">2.- Mediano plazo (2 años)</option>
+            <div class="field">
+                <label>SOCAVACIÓN (006)</label>
+                <select id="v006_c">
+                    <option value="4">4.- No se aprecia</option>
+                    <option value="3">3.- Grave</option>
                 </select>
             </div>
-            <div style="grid-column: span 2;">
-                <label>(073) COMENTARIOS ADICIONALES</label>
-                <textarea id="comentarios_073" rows="4" placeholder="Observaciones técnicas..."></textarea>
-            </div>
+        </div>
+        <div class="row">
+            <div class="field"><label>COMENTARIOS (013)</label><textarea id="v013" rows="4"></textarea></div>
         </div>
     </div>
 
-    <button class="btn-save" onclick="SiapCore.save()">GUARDAR EN SISTEMA SIAP</button>
+    <div class="section">
+        <div class="section-title">3. SUPERFICIE DE RODAMIENTO</div>
+        <div class="row">
+            <div class="field">
+                <label>CONDICIÓN (014)</label>
+                <select id="v014">
+                    <option>1.- Buena</option>
+                    <option>2.- Regular</option>
+                    <option>3.- Mala</option>
+                </select>
+            </div>
+            <div class="field"><label>ESPESOR CARPETA (cm) (015)</label><input type="number" id="v015"></div>
+        </div>
+    </div>
 </div>
 
+<button class="btn-float" onclick="saveData()">GUARDAR Y CONTINUAR</button>
+
 <script>
-/**
- * SiapCore: Lógica de alta fidelidad para inspección de puentes.
- */
-const SiapCore = (() => {
-    const ELEMENTOS = [
-        "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
-        "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
-        "Losa (029)", "Trabes (032)", "Diafragmas (035)", "Sistemas de Unión (038)", 
-        "Apoyos (041)", "Pilas / Columnas (044)", "Cabezales (047)", "Estribos (050)", 
-        "Muros (053)", "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
-        "Accesos (065)", "Otros (068)"
-    ];
-
-    return {
-        init: () => {
-            const tbody = document.getElementById('tabla-elementos');
-            tbody.innerHTML = ELEMENTOS.map((el, i) => `
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                    <td style="padding: 10px; text-align: left; font-weight: 500;">${el}</td>
-                    <td style="padding: 5px;"><select id="ef_${i}"><option>5</option><option selected>4</option><option>1</option></select></td>
-                    <td style="padding: 5px;"><select id="m_${i}"><option>0</option><option>1</option><option>2</option></select></td>
-                    <td style="padding: 5px;"><select id="u_${i}"><option>0</option><option>1</option><option>2</option></select></td>
-                </tr>
-            `).join('');
-            
-            // Carga de datalist si puentesDB está disponible
-            if (typeof puentesDB !== 'undefined') {
-                const dl = document.getElementById('puentes-list');
-                Object.keys(puentesDB).forEach(id => {
-                    const opt = document.createElement('option');
-                    opt.value = puentesDB[id].nombre;
-                    dl.appendChild(opt);
-                });
-            }
-        },
-        autoFill: (val) => {
-            if (typeof puentesDB === 'undefined') return;
-            const entry = Object.entries(puentesDB).find(([id, data]) => data.nombre === val);
-            if (entry) {
-                document.getElementById('num_003').value = entry[0];
-                const ubi = entry[1].ubi.split(' / ');
-                document.getElementById('estado_004').value = ubi[0] || "";
-                document.getElementById('mun_005').value = ubi[1] || "";
-            }
-        },
-        save: () => {
-            if (!document.getElementById('resp_001').value) {
-                alert("Error: Ingrese el nombre del responsable.");
-                return;
-            }
-            alert("Procesando inspección estructural... Datos listos.");
-        }
-    };
-})();
-
-document.addEventListener('DOMContentLoaded', SiapCore.init);
+    function saveData() {
+        const data = {
+            folio: localStorage.getItem('currentFolio'),
+            p002: document.getElementById('v002').value,
+            // Aquí se agregan todos los campos v001...v073
+        };
+        localStorage.setItem('form_data_' + data.folio, JSON.stringify(data));
+        alert("Página guardada localmente. Proceda a la carga de fotos.");
+        location.href = "inspeccion.html";
+    }
 </script>
 </body>
 </html>
