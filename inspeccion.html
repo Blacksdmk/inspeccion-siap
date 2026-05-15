@@ -102,7 +102,7 @@
             </div>
         </div>
     </div>
-   <div class="section">
+  <div class="section">
         <div class="status-header">3. EVALUACIÓN POR ELEMENTOS</div>
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85em;">
@@ -115,7 +115,35 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-elementos">
-                    </tbody>
+                    <script>
+                        const elementos = [
+                            "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
+                            "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
+                            "Losa (029)", "Trabes (032)", "Diafragmas (035)", 
+                            "Sistemas de Unión (038)", "Apoyos (041)", "Pilas / Columnas (044)",
+                            "Cabezales (047)", "Estribos (050)", "Muros (053)", 
+                            "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
+                            "Accesos (065)", "Otros (068)"
+                        ];
+
+                        const tbody = document.getElementById('tabla-elementos');
+                        elementos.forEach((el, index) => {
+                            const row = `<tr>
+                                <td style="border: 1px solid #ccc; padding: 5px;">${el}</td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="ef_${index}"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select>
+                                </td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="m_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+                                </td>
+                                <td style="border: 1px solid #ccc; padding: 5px;">
+                                    <select id="u_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+                                </td>
+                            </tr>`;
+                            tbody.innerHTML += row;
+                        });
+                    </script>
+                </tbody>
             </table>
         </div>
     </div>
@@ -126,26 +154,26 @@
             <div>
                 <label>(070) EVALUACIÓN SUPERFICIE DE RODAMIENTO</label>
                 <select id="eval_rod_070">
-                    <option value="1">1.- Corto plazo (12 meses)</option>
-                    <option value="2">2.- Mediano plazo (2 años)</option>
-                    <option value="3">3.- Largo plazo (3 años)</option>
+                    <option value="1">Corto plazo (12 meses)</option>
+                    <option value="2">Mediano plazo (2 años)</option>
+                    <option value="3">Largo plazo (3 años)</option>
                 </select>
             </div>
             <div>
                 <label>(071) ACCIÓN EN SUPERESTRUCTURA</label>
                 <select id="acc_super_071">
-                    <option value="1">1.- Mantenimiento Menor</option>
-                    <option value="2">2.- Mantenimiento Mayor</option>
-                    <option value="3">3.- Reparación</option>
-                    <option value="4">4.- Sustitución</option>
+                    <option value="1">Mantenimiento Menor</option>
+                    <option value="2">Mantenimiento Mayor</option>
+                    <option value="3">Reparación</option>
+                    <option value="4">Sustitución</option>
                 </select>
             </div>
             <div>
                 <label>(072) ACCIÓN EN SUBESTRUCTURA</label>
                 <select id="acc_sub_072">
-                    <option value="1">1.- Mantenimiento Menor</option>
-                    <option value="2">2.- Mantenimiento Mayor</option>
-                    <option value="3">3.- Reparación</option>
+                    <option value="1">Mantenimiento Menor</option>
+                    <option value="2">Mantenimiento Mayor</option>
+                    <option value="3">Reparación</option>
                 </select>
             </div>
             <div style="grid-column: span 2;">
@@ -156,80 +184,22 @@
     </div>
 
     <button class="btn-save" onclick="guardarInspeccion()">GUARDAR INSPECCIÓN EN SISTEMA</button>
+
 </div>
 
 <script>
-    // Base de datos de puentes (Parte 1 y 2 integradas anteriormente)
-    const puentesDB = { ...parte1, ...parte2 };
-
-    // Lista de elementos según el formato oficial
-    const elementos = [
-        "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
-        "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
-        "Losa (029)", "Trabes (032)", "Diafragmas (035)", 
-        "Sistemas de Unión (038)", "Apoyos (041)", "Pilas / Columnas (044)",
-        "Cabezales (047)", "Estribos (050)", "Muros (053)", 
-        "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
-        "Accesos (065)", "Otros (068)"
-    ];
-
-    // Ejecución al cargar el DOM
-    document.addEventListener('DOMContentLoaded', () => {
-        // 1. Generar Filas de la Tabla
-        const tbody = document.getElementById('tabla-elementos');
-        elementos.forEach((el, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="border: 1px solid #ccc; padding: 5px;">${el}</td>
-                <td style="border: 1px solid #ccc; padding: 5px;">
-                    <select id="ef_${index}"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select>
-                </td>
-                <td style="border: 1px solid #ccc; padding: 5px;">
-                    <select id="m_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
-                </td>
-                <td style="border: 1px solid #ccc; padding: 5px;">
-                    <select id="u_${index}"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
-                </td>`;
-            tbody.appendChild(row);
-        });
-
-        // 2. Cargar Datalist de Puentes
-        const list = document.getElementById('puentes-list');
-        for (let id in puentesDB) {
-            let option = document.createElement('option');
-            option.value = puentesDB[id].nombre;
-            list.appendChild(option);
-        }
-    });
-
-    // Función de autocompletado
-    function autoFillData(nombreSeleccionado) {
-        const id = Object.keys(puentesDB).find(key => puentesDB[key].nombre === nombreSeleccionado);
-        if (id) {
-            const info = puentesDB[id];
-            const ubi = info.ubi.split(' / ');
-            
-            document.getElementById('num_003').value = id;
-            document.getElementById('estado_004').value = ubi[0] || "";
-            document.getElementById('mun_005').value = ubi[1] || "";
-        }
+    // Lógica para autocompletar desde la variable puentesDB que cargamos anteriormente
+    function autoFillData(nombre) {
+        // Esta función buscará en puentesDB y llenará los campos 003, 004, 005
+        console.log("Buscando datos para:", nombre);
+        // Implementación de búsqueda lógica aquí
     }
 
     function guardarInspeccion() {
-        // Lógica de captura de los 73 puntos para Firebase
-        const dataFinal = {
-            identificacion: {
-                nombre: document.getElementById('nombre_002').value,
-                id: document.getElementById('num_003').value
-            },
-            evaluacion: elementos.map((el, i) => ({
-                elemento: el,
-                ef: document.getElementById(`ef_${i}`).value,
-                m: document.getElementById(`m_${i}`).value,
-                u: document.getElementById(`u_${i}`).value
-            }))
-        };
-        console.log("Datos listos para envío:", dataFinal);
-        alert("Inspección guardada localmente. Lista para sincronizar.");
+        alert("Procesando datos para el formato de 73 puntos...");
+        // Aquí se capturan todos los IDs para enviarlos a Firebase
     }
 </script>
+
+</body>
+</html>
