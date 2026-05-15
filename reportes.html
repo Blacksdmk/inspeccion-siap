@@ -3,127 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes SIAP - Generador</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Reporte de Inspección SIAP</title>
     <style>
-        :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .header-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
-        .btn-back { text-decoration: none; color: var(--primary); font-weight: bold; }
-        
-        .controls { background: var(--white); padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .btn-pdf { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        :root {
+            --border-dark: #000;
+            --header-bg: #e9ecef;
+        }
 
-        /* Estilo del Reporte (Lo que saldrá en el PDF) */
-        #report-content { background: white; padding: 40px; border-radius: 5px; min-height: 1000px; }
-        .report-header { text-align: center; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
+        body { font-family: "Arial", sans-serif; background: #525659; margin: 0; padding: 20px; display: flex; justify-content: center; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background-color: #f2f2f2; color: var(--primary); padding: 12px; border: 1px solid #ddd; text-align: left; }
-        td { padding: 12px; border: 1px solid #ddd; vertical-align: top; }
+        /* Hoja Tamaño Carta */
+        .page { 
+            width: 21cm; 
+            min-height: 27.9cm; 
+            padding: 1.5cm; 
+            background: white; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .header-table td { border: 1px solid var(--border-dark); padding: 10px; text-align: center; vertical-align: middle; }
         
-        .img-report { width: 150px; height: 100px; object-fit: cover; border-radius: 4px; margin: 2px; }
-        .grado-box { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; }
-        .g1 { background: #27ae60; } .g2 { background: #2ecc71; } .g3 { background: #f1c40f; } 
-        .g4 { background: #e67e22; } .g5 { background: #c0392b; }
+        h1 { font-size: 14px; margin: 5px 0; text-transform: uppercase; }
+        .section-title { background: var(--header-bg); font-weight: bold; font-size: 12px; padding: 5px; border: 1px solid var(--border-dark); text-transform: uppercase; }
+
+        /* Estructura de Formulario */
+        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); border-left: 1px solid var(--border-dark); border-top: 1px solid var(--border-dark); }
+        .cell { 
+            border-right: 1px solid var(--border-dark); 
+            border-bottom: 1px solid var(--border-dark); 
+            padding: 4px 8px; 
+            font-size: 11px; 
+            min-height: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .label { font-weight: bold; font-size: 9px; color: #333; margin-bottom: 2px; }
+        .value { font-size: 11px; color: #000; }
+
+        /* Tabla de Elementos */
+        .element-table { width: 100%; border-collapse: collapse; margin-top: -1px; }
+        .element-table th, .element-table td { border: 1px solid var(--border-dark); padding: 3px 6px; font-size: 10px; }
+        .element-table th { background: var(--header-bg); text-align: center; }
+        .col-nombre { text-align: left; width: 50%; }
+        .col-val { width: 16.6%; text-align: center; }
+
+        /* Firma */
+        .signature-box { margin-top: 40px; display: flex; justify-content: space-around; text-align: center; }
+        .sig-line { border-top: 1px solid var(--border-dark); width: 200px; margin-top: 50px; font-size: 11px; font-weight: bold; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; margin: 0; width: 100%; }
+            .btn-print { display: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="header-nav">
-    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Panel Principal</a>
-    <div class="controls">
-        <button class="btn-pdf" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Descargar Reporte Técnico</button>
-    </div>
-</div>
+<div class="page" id="reporte">
+    <table class="header-table">
+        <tr>
+            <td style="width: 20%;"><img src="https://via.placeholder.com/80x40?text=LOGO" alt="Logo"></td>
+            <td>
+                <h1>SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h1>
+                <h1>FORMATO DE INSPECCIÓN VISUAL</h1>
+            </td>
+            <td style="width: 20%; font-weight: bold; font-size: 12px;">FOLIO: <br><span id="folio-val" style="color: red;">0000</span></td>
+        </tr>
+    </table>
 
-<div id="report-content">
-    <div class="report-header">
-        <h1 style="margin:0;">INFORME DE INSPECCIÓN ESTRUCTURAL</h1>
-        <p style="margin:5px 0; color: #666;">Metodología SIAP (Sistema de Inspección de Puentes)</p>
-        <p id="report-date" style="font-weight: bold;"></p>
+    <div class="section-title">1. DATOS GENERALES</div>
+    <div class="form-grid">
+        <div class="cell" style="grid-column: span 8;"><div class="label">RESPONSABLE DEL PUENTE</div><div class="value" id="rep-resp">---</div></div>
+        <div class="cell" style="grid-column: span 4;"><div class="label">FECHA DE INSPECCIÓN</div><div class="value" id="rep-fecha">--/--/----</div></div>
+        
+        <div class="cell" style="grid-column: span 6;"><div class="label">(002) NOMBRE DEL PUENTE</div><div class="value" id="rep-nombre">---</div></div>
+        <div class="cell" style="grid-column: span 3;"><div class="label">(003) NÚMERO / CADENAMIENTO</div><div class="value" id="rep-num">---</div></div>
+        <div class="cell" style="grid-column: span 3;"><div class="label">(004) ESTADO</div><div class="value" id="rep-estado">---</div></div>
+        
+        <div class="cell" style="grid-column: span 12;"><div class="label">(005/006) MUNICIPIO / LOCALIDAD</div><div class="value" id="rep-mun">---</div></div>
     </div>
 
-    <table id="table-results">
+    <div class="section-title" style="margin-top: 15px;">2. CONDICIÓN GENERAL</div>
+    <div class="form-grid">
+        <div class="cell" style="grid-column: span 3;"><div class="label">(004) HUNDIMIENTO</div><div class="value" id="rep-hun">-</div></div>
+        <div class="cell" style="grid-column: span 3;"><div class="label">(005) DESPLOME</div><div class="value" id="rep-des">-</div></div>
+        <div class="cell" style="grid-column: span 3;"><div class="label">(006) SOCAVACIÓN</div><div class="value" id="rep-soc">-</div></div>
+        <div class="cell" style="grid-column: span 3;"><div class="label">(007) FLECHAS</div><div class="value" id="rep-fle">-</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top: 15px;">3. EVALUACIÓN POR ELEMENTOS</div>
+    <table class="element-table">
         <thead>
             <tr>
-                <th>Estructura / Ubicación</th>
-                <th>Elemento</th>
-                <th>Hallazgo Detectado</th>
-                <th>Evidencia Fotográfica</th>
-                <th>Calificación</th>
+                <th class="col-nombre">ELEMENTO ESTRUCTURAL</th>
+                <th class="col-val">(EF) ESTADO</th>
+                <th class="col-val">(M) MANT.</th>
+                <th class="col-val">(U) URGENCIA</th>
             </tr>
         </thead>
-        <tbody id="report-body">
+        <tbody id="rep-elementos-body">
             </tbody>
     </table>
+
+    <div class="section-title" style="margin-top: 15px;">4. COMENTARIOS Y OBSERVACIONES</div>
+    <div class="form-grid">
+        <div class="cell" style="grid-column: span 12; min-height: 80px; justify-content: flex-start;">
+            <div class="value" id="rep-comentarios">Sin observaciones registradas.</div>
+        </div>
+    </div>
+
+    <div class="signature-box">
+        <div class="sig-line">NOMBRE Y FIRMA DEL INSPECTOR</div>
+        <div class="sig-line">SELLO DE LA DEPENDENCIA</div>
+    </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script>
+    // Lista idéntica a calificacion.html para consistencia
+    const ELEMENTOS = [
+        "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
+        "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
+        "Losa (029)", "Trabes (032)", "Diafragmas (035)", "Sistemas de Unión (038)", 
+        "Apoyos (041)", "Pilas / Columnas (044)", "Cabezales (047)", "Estribos (050)", 
+        "Muros (053)", "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
+        "Accesos (065)", "Otros (068)"
+    ];
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0IuDhRe470w5WL8Fb-YOMMJPc5B8-bt8",
-      authDomain: "siap-inspecciones.firebaseapp.com",
-      projectId: "siap-inspecciones",
-      messagingSenderId: "285150830693",
-      appId: "1:285150830693:web:1053b0b81d42fcf64b668c"
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+        // Cargar tabla de elementos
+        const tbody = document.getElementById('rep-elementos-body');
+        tbody.innerHTML = ELEMENTOS.map(el => `
+            <tr>
+                <td class="col-nombre">${el}</td>
+                <td class="col-val">-</td>
+                <td class="col-val">-</td>
+                <td class="col-val">-</td>
+            </tr>
+        `).join('');
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        // Lógica de recuperación de datos (LocalStorage o URL Params)
+        cargarDatosDeInspeccion();
+    });
 
-    document.getElementById('report-date').innerText = "Generado el: " + new Date().toLocaleDateString();
-
-    async function cargarDatos() {
-        const tbody = document.getElementById('report-body');
-        tbody.innerHTML = "<tr><td colspan='5'>Cargando registros calificados...</td></tr>";
-
-        // Solo traemos los que ya fueron calificados
-        const q = query(collection(db, "inspecciones"), where("estado", "==", "Calificado"));
-        const querySnapshot = await getDocs(q);
-        
-        tbody.innerHTML = "";
-        
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const tr = document.createElement('tr');
-            
-            const fotosHtml = data.fotos.map(url => `<img src="${url}" class="img-report">`).join("");
-            const gradoClass = "g" + data.grado;
-
-            tr.innerHTML = `
-                <td><strong>${data.puente}</strong><br><small>${data.fecha}</small></td>
-                <td>${data.elemento}</td>
-                <td>${data.hallazgo}</td>
-                <td>${fotosHtml}</td>
-                <td style="text-align:center;">
-                    <div class="grado-box ${gradoClass}">Grado ${data.grado}</div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        if(tbody.innerHTML === "") {
-            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No hay inspecciones calificadas para mostrar.</td></tr>";
-        }
+    function cargarDatosDeInspeccion() {
+        console.log("Sincronizando con base de datos local para reporte...");
+        // Aquí recuperarás la información guardada en calificacion.html
     }
-
-    window.exportarPDF = () => {
-        const element = document.getElementById('report-content');
-        const opt = {
-            margin: 10,
-            filename: 'Reporte_SIAP_' + new Date().getTime() + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-    };
-
-    cargarDatos();
 </script>
+
 </body>
 </html>
