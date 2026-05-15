@@ -8,13 +8,10 @@
     <style>
         :root { --primary: #1a2a6c; --bg: #f4f7f9; --white: #fff; --accent: #fdbb2d; --text: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); }
-        
         .header { background: var(--primary); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 30px 30px; }
         .header h1 { margin: 0; font-size: 1.8rem; }
-        
         .container { max-width: 900px; margin: -30px auto 40px; padding: 0 20px; }
         
-        /* Configuración del Puente */
         .setup-card { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .setup-card h2 { color: var(--primary); font-size: 1.2rem; margin-top: 0; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px; }
         
@@ -28,7 +25,6 @@
         .info-item span { display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: bold; }
         .info-item strong { font-size: 0.95rem; color: var(--primary); }
 
-        /* Menú con explicaciones */
         .menu-list { display: flex; flex-direction: column; gap: 15px; }
         .menu-item { 
             background: var(--white); padding: 20px; border-radius: 15px; display: flex; align-items: center;
@@ -52,29 +48,19 @@
     <p>Inventario y Gestión de Estructuras</p>
 </div>
 
-<div class="setup-card">
-    <h2><i class="fas fa-search"></i> Selección de Estructura</h2>
-    <label>Puente o PIV (Cadenamiento / Nombre)</label>
-    <select id="bridge-selector" onchange="updateBridgeData()">
-        <option value="">-- Seleccionar de Inventario General (207 registros) --</option>
-    </select>
-
-    <div id="bridge-preview" style="display: none;">
-        <div class="bridge-info-preview">
-            <div class="info-item"><span>Nombre Oficial</span><strong id="p-nombre">---</strong></div>
-            <div class="info-item"><span>Ubicación (Edo/Mun)</span><strong id="p-ubi">---</strong></div>
-            <div class="info-item"><span>Tipo de Estructura</span><strong id="p-tipo">---</strong></div>
-            <div class="info-item"><span>Longitud</span><strong id="p-long">---</strong></div>
-        </div>
-    </div>
-</div>
+<div class="container">
+    <div class="setup-card">
+        <h2><i class="fas fa-search"></i> Selección de Estructura</h2>
+        <label>Puente o PIV (Cadenamiento / Nombre)</label>
+        <select id="bridge-selector" onchange="updateBridgeData()">
+            <option value="">-- Seleccionar de Inventario General (207 registros) --</option>
         </select>
 
         <div id="bridge-preview" style="display: none;">
             <div class="bridge-info-preview">
                 <div class="info-item"><span>Nombre Oficial</span><strong id="p-nombre">---</strong></div>
-                <div class="info-item"><span>Ubicación (Edo/Mun)</span><strong id="p-ubi">---</strong></div>
-                <div class="info-item"><span>Tipo de Estructura</span><strong id="p-tipo">---</strong></div>
+                <div class="info-item"><span>Ubicación</span><strong id="p-ubi">---</strong></div>
+                <div class="info-item"><span>Tipo</span><strong id="p-tipo">---</strong></div>
                 <div class="info-item"><span>Longitud</span><strong id="p-long">---</strong></div>
             </div>
         </div>
@@ -85,31 +71,31 @@
             <div class="icon-box"><i class="fas fa-edit"></i></div>
             <div class="text-box">
                 <h3>Levantamiento de Inspección</h3>
-                <p>Registrar nuevos hallazgos fotográficos, seleccionar fallas predefinidas por categorías (Super/Subestructura) y condiciones generales.</p>
+                <p>Registrar nuevos hallazgos fotográficos y fallas por categorías.</p>
             </div>
         </a>
 
-        <a href="calificacion.html" class="menu-item">
+        <a href="calificacion.html" class="menu-item disabled" id="link-calificacion">
             <div class="icon-box"><i class="fas fa-calculator"></i></div>
             <div class="text-box">
                 <h3>Calificación Técnica SIAP</h3>
-                <p>Evaluar el grado de daño (1-5) de los hallazgos registrados y actualizar el historial de mantenimiento.</p>
+                <p>Evaluar grado de daño (1-5) y actualización de historial.</p>
             </div>
         </a>
 
-        <a href="reportes.html" class="menu-item">
+        <a href="reportes.html" class="menu-item disabled" id="link-reportes">
             <div class="icon-box"><i class="fas fa-file-invoice"></i></div>
             <div class="text-box">
                 <h3>Generación de Reportes</h3>
-                <p>Exportar el formato oficial con datos subrayados, inyectando automáticamente los campos "No Aplica" y tablas fotográficas.</p>
+                <p>Exportar formato oficial e inyección de datos.</p>
             </div>
         </a>
     </div>
 </div>
 
 <script>
-    // Base de datos sincronizada con "INVENTARIO Genaral.csv"
-    const puentesDB = {
+// Base de datos de ejemplo (sustituir por tus 207 registros completos)
+ const puentesDB = {
     "129955": { nombre: "JUZGADOS", ubi: "SLP / Rioverde", tipo: "PIP", long: "16.5 m" },
     "129480": { nombre: "PIPR 129+480", ubi: "SLP / Rioverde", tipo: "PIPR", long: "16.5 m" },
     "129200": { nombre: "PIPR 129+200", ubi: "SLP / Rioverde", tipo: "PIPR", long: "13.4 m" },
@@ -371,26 +357,42 @@
     "60010": { nombre: "PLAYA DEL CARMEN", ubi: "Quintana Roo / Solidaridad", tipo: "PSV", long: "66.0 m" }
 };
 
-    function updateBridgeData() {
-        const id = document.getElementById('bridge-selector').value;
-        const preview = document.getElementById('bridge-preview');
-        const link = document.getElementById('link-inspeccion');
+function cargarInventario() {
+    const selector = document.getElementById('bridge-selector');
+    Object.keys(puentesDB).forEach(id => {
+        const p = puentesDB[id];
+        const option = document.createElement('option');
+        option.value = id;
+        const km = id.length > 3 ? `${id.slice(0, -3)}+${id.slice(-3)}` : `00+${id}`;
+        option.textContent = `${km} - ${p.nombre}`;
+        selector.appendChild(option);
+    });
+}
 
-        if (id && puentesDB[id]) {
-            const p = puentesDB[id];
-            document.getElementById('p-nombre').innerText = p.nombre;
-            document.getElementById('p-ubi').innerText = p.ubi;
-            document.getElementById('p-tipo').innerText = p.tipo;
-            document.getElementById('p-long').innerText = p.long;
-            
-            preview.style.display = 'block';
-            link.classList.remove('disabled');
-            sessionStorage.setItem('bridge_id', id);
-        } else {
-            preview.style.display = 'none';
-            link.classList.add('disabled');
-        }
+function updateBridgeData() {
+    const id = document.getElementById('bridge-selector').value;
+    const preview = document.getElementById('bridge-preview');
+    const links = ["link-inspeccion", "link-calificacion", "link-reportes"];
+
+    if (id && puentesDB[id]) {
+        const p = puentesDB[id];
+        document.getElementById('p-nombre').textContent = p.nombre;
+        document.getElementById('p-ubi').textContent = p.ubi;
+        document.getElementById('p-tipo').textContent = p.tipo;
+        document.getElementById('p-long').textContent = p.long;
+        
+        preview.style.display = 'block';
+        links.forEach(linkId => document.getElementById(linkId).classList.remove('disabled'));
+        
+        // Guardar selección para uso en otras páginas
+        localStorage.setItem('selectedBridge', JSON.stringify({id, ...p}));
+    } else {
+        preview.style.display = 'none';
+        links.forEach(linkId => document.getElementById(linkId).classList.add('disabled'));
     }
+}
+
+window.onload = cargarInventario;
 </script>
 
 </body>
