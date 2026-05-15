@@ -3,261 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAP - Inspección Visual</title>
+    <title>SIAP - Levantamiento de Daños</title>
     <style>
-        :root {
-            --primary-dark: #2c3e50;
-            --success-green: #27ae60;
-            --bg-light: #f4f4f9;
-            --border-color: #e0e0e0;
-            --readonly-bg: #ececec;
-        }
+        :root { --siap-navy: #2c3e50; --siap-accent: #3498db; --border: #ddd; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .header { border-bottom: 2px solid var(--siap-navy); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { background: var(--siap-navy); color: white; padding: 10px 15px; border-radius: 4px; font-weight: bold; margin-bottom: 15px; }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: #333; margin: 20px; line-height: 1.6; }
-        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        /* Contenedor de Evidencia */
+        .damage-card { border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 200px 1fr; gap: 20px; background: #fff; }
+        .photo-upload { width: 200px; height: 150px; border: 2px dashed var(--siap-accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
         
-        h2 { border-bottom: 3px solid var(--primary-dark); color: var(--primary-dark); padding-bottom: 10px; margin-top: 0; text-align: center; }
-        p.subtitle { text-align: center; font-weight: bold; color: #666; margin-bottom: 30px; }
-
-        .section { margin-bottom: 25px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-        .status-header { background: var(--primary-dark); color: white; padding: 12px 15px; font-weight: bold; letter-spacing: 1px; }
+        .damage-info { display: flex; flex-direction: column; gap: 10px; }
+        label { font-size: 0.85em; font-weight: bold; color: var(--siap-navy); }
+        select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 4px; width: 100%; box-sizing: border-box; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
-        
-        label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.85em; color: var(--primary-dark); }
-        input, select, textarea { 
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; transition: border 0.3s, box-shadow 0.3s; 
-        }
-        input:focus, select:focus { border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(44, 62, 80, 0.2); outline: none; }
-        
-        input[readonly] { background-color: var(--readonly-bg); border-color: #ddd; cursor: not-allowed; color: #555; }
-
-        .btn-save { 
-            background: var(--success-green); color: white; padding: 15px; border: none; border-radius: 6px; 
-            cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; transition: background 0.3s; 
-        }
-        .btn-save:hover { background: #219150; }
-        
-        .scale-info { font-size: 0.75em; color: #7f8c8d; margin-left: 20px; margin-bottom: -10px; }
+        .btn-add { background: var(--siap-accent); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        .btn-save { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-size: 1.1em; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>SISTEMA DE ADMINISTRACIÓN DE PUENTES (SIAP)</h2>
-    <p class="subtitle">FORMATO DE INSPECCIÓN VISUAL DE ESTRUCTURAS</p>
+    <div class="header">
+        <h2>LEVANTAMIENTO DE DAÑOS Y EVIDENCIA</h2>
+        <span id="bridge-tag" style="font-weight: bold; color: var(--siap-accent);">PUENTE: ---</span>
+    </div>
+
+    <div class="section-title">REGISTRO FOTOGRÁFICO DE PATOLOGÍAS</div>
     
-    <div class="section">
-        <div class="status-header">1. DATOS GENERALES DE IDENTIFICACIÓN</div>
-        <div class="grid">
-            <div>
-                <label>(001) RESPONSABLE DEL PUENTE</label>
-                <input type="text" id="resp_001" placeholder="Nombre completo del inspector">
+    <div id="damage-container">
+        <div class="damage-card">
+            <div class="photo-upload" onclick="triggerUpload(this)">
+                <span>+ Añadir Foto</span>
+                <input type="file" accept="image/*" style="display:none" onchange="previewImage(this)">
             </div>
-            <div>
-                <label>FECHA DE INSPECCIÓN</label>
-                <input type="date" id="fecha_inspeccion">
-            </div>
-            <div>
-                <label>(002) NOMBRE DEL PUENTE</label>
-                <input type="text" id="nombre_002" list="puentes-list" oninput="autoFillData(this.value)" placeholder="Buscar puente en base de datos...">
-                <datalist id="puentes-list"></datalist>
-            </div>
-            <div>
-                <label>(003) NÚMERO / CADENAMIENTO</label>
-                <input type="text" id="num_003" readonly placeholder="Automático">
-            </div>
-            <div>
-                <label>(004) ESTADO / ENTIDAD</label>
-                <input type="text" id="estado_004" readonly placeholder="Automático">
-            </div>
-            <div>
-                <label>(005/006) MUNICIPIO / LOCALIDAD</label>
-                <input type="text" id="mun_005" readonly placeholder="Automático">
+            <div class="damage-info">
+                <div>
+                    <label>ELEMENTO AFECTADO</label>
+                    <select class="el-select">
+                        <option>Superficie de Rodamiento</option>
+                        <option>Trabes / Vigas</option>
+                        <option>Pilas / Estribos</option>
+                        <option>Apoyos</option>
+                    </select>
+                </div>
+                <div>
+                    <label>TIPO DE DAÑO / OBSERVACIÓN TÉCNICA</label>
+                    <textarea rows="3" placeholder="Ej: Grieta longitudinal de 3mm, desprendimiento de concreto, corrosión en acero de refuerzo..."></textarea>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="section">
-        <div class="status-header">2. CONDICIÓN GENERAL DEL PUENTE</div>
-        <p class="scale-info">Escala de evaluación: 5 (Excelente) a 0 (Falla/Colapso)</p>
-        <div class="grid">
-            <div>
-                <label>(004) HUNDIMIENTO</label>
-                <select id="hun_004">
-                    <option value="5">5.- Excelente / Ninguno</option>
-                    <option value="4">4.- Buena / No se aprecia</option>
-                    <option value="3">3.- Aceptable</option>
-                    <option value="2">2.- Regular</option>
-                    <option value="1">1.- Mala</option>
-                    <option value="0">0.- Falla</option>
-                </select>
-            </div>
-            <div>
-                <label>(005) DESPLOME</label>
-                <select id="des_005">
-                    <option value="5">5.- Excelente</option>
-                    <option value="4" selected>4.- No se aprecia</option>
-                    <option value="3">3.- Ligero</option>
-                    <option value="2">2.- Perceptible</option>
-                    <option value="1">1.- Significativo</option>
-                </select>
-            </div>
-            <div>
-                <label>(006) SOCAVACIÓN</label>
-                <select id="soc_006">
-                    <option value="5">5.- Excelente / Ninguna</option>
-                    <option value="4">4.- Buena</option>
-                    <option value="3">3.- Aceptable</option>
-                    <option value="2">2.- Regular</option>
-                    <option value="1">1.- Mala / Grave</option>
-                </select>
-            </div>
-            <div>
-                <label>(007) FLECHAS</label>
-                <select id="fle_007">
-                    <option value="5">5.- Excelente / Ninguna</option>
-                    <option value="4" selected>4.- Buena / No se aprecia</option>
-                    <option value="3">3.- Aceptable</option>
-                    <option value="2">2.- Regular</option>
-                    <option value="1">1.- Mala / Defecto grave</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    
-<div class="section">
-        <div class="status-header">3. EVALUACIÓN POR ELEMENTOS</div>
-        <div style="overflow-x: auto; padding: 0 15px 20px 15px;">
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em;">
-                <thead>
-                    <tr style="background: #f8f9fa; color: var(--primary-dark);">
-                        <th style="border: 1px solid var(--border-color); padding: 12px; text-align: left;">Elemento Estructural</th>
-                        <th style="border: 1px solid var(--border-color); padding: 12px; width: 15%;">(EF) Estado</th>
-                        <th style="border: 1px solid var(--border-color); padding: 12px; width: 15%;">(M) Mant.</th>
-                        <th style="border: 1px solid var(--border-color); padding: 12px; width: 15%;">(U) Urgencia</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-elementos">
-                    </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="status-header">4. EVALUACIÓN FINAL Y PRIORIZACIÓN</div>
-        <div class="grid">
-            <div>
-                <label>(070) EVALUACIÓN SUPERFICIE DE RODAMIENTO</label>
-                <select id="eval_rod_070">
-                    <option value="1">1.- Corto plazo (12 meses)</option>
-                    <option value="2">2.- Mediano plazo (2 años)</option>
-                    <option value="3">3.- Largo plazo (3 años)</option>
-                </select>
-            </div>
-            <div>
-                <label>(071) ACCIÓN EN SUPERESTRUCTURA</label>
-                <select id="acc_super_071">
-                    <option value="1">1.- Mantenimiento Menor</option>
-                    <option value="2">2.- Mantenimiento Mayor</option>
-                    <option value="3">3.- Reparación</option>
-                    <option value="4">4.- Sustitución</option>
-                </select>
-            </div>
-            <div>
-                <label>(072) ACCIÓN EN SUBESTRUCTURA</label>
-                <select id="acc_sub_072">
-                    <option value="1">1.- Mantenimiento Menor</option>
-                    <option value="2">2.- Mantenimiento Mayor</option>
-                    <option value="3">3.- Reparación</option>
-                </select>
-            </div>
-            <div style="grid-column: span 2;">
-                <label>(073) COMENTARIOS Y OBSERVACIONES ADICIONALES</label>
-                <textarea id="comentarios_073" rows="4" placeholder="Describa hallazgos específicos..."></textarea>
-            </div>
-        </div>
-    </div>
-
-    <button class="btn-save" onclick="SiapCore.procesarGuardado()">GUARDAR INSPECCIÓN EN SISTEMA</button>
+    <button class="btn-add" onclick="addNewDamage()">+ AGREGAR OTRO DAÑO</button>
+    <button class="btn-save" onclick="saveInspeccion()">FINALIZAR LEVANTAMIENTO</button>
 </div>
 
 <script>
-/**
- * SiapCore: Motor de procesamiento lógico para inspección de puentes.
- * Optimizado para FlutterFlow/Firebase.
- */
-const SiapCore = (() => {
-    const ELEMENTOS_CONFIG = [
-        "Superficie de Rodamiento (011)", "Guarniciones (014)", "Parapetos (017)", 
-        "Juntas de Dilatación (020)", "Drenaje (023)", "Señalamiento (026)",
-        "Losa (029)", "Trabes (032)", "Diafragmas (035)", "Sistemas de Unión (038)", 
-        "Apoyos (041)", "Pilas / Columnas (044)", "Cabezales (047)", "Estribos (050)", 
-        "Muros (053)", "Cimentación (056)", "Cauce (059)", "Conos de Derrame (062)",
-        "Accesos (065)", "Otros (068)"
-    ];
+    function triggerUpload(el) {
+        el.querySelector('input').click();
+    }
 
-    return {
-        renderTabla: () => {
-            const container = document.getElementById('tabla-elementos');
-            container.innerHTML = ELEMENTOS_CONFIG.map((nombre, i) => `
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                    <td style="padding: 10px; text-align: left; font-weight: 500;">${nombre}</td>
-                    <td style="padding: 5px;">
-                        <select id="ef_${i}"><option>5</option><option selected>4</option><option>3</option><option>2</option><option>1</option></select>
-                    </td>
-                    <td style="padding: 5px;">
-                        <select id="m_${i}"><option>0</option><option>1</option><option>2</option></select>
-                    </td>
-                    <td style="padding: 5px;">
-                        <select id="u_${i}"><option>0</option><option>1</option><option>2</option><option>3</option></select>
-                    </td>
-                </tr>
-            `).join('');
-        },
-
-        procesarGuardado: () => {
-            const res = document.getElementById('resp_001').value;
-            const fecha = document.getElementById('fecha_inspeccion').value;
-
-            if (!res || !fecha) {
-                alert("Error de Validación: Datos generales incompletos.");
-                return;
-            }
-
-            console.log("Inyectando datos al Sistema de Gestión...");
-            alert("Éxito: Datos preparados para sincronización con Firebase.");
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            const parent = input.parentElement;
+            reader.onload = (e) => {
+                parent.innerHTML = `<img src="${e.target.result}"> <input type="file" style="display:none">`;
+            };
+            reader.readAsDataURL(input.files[0]);
         }
-    };
-})();
-
-// Inicialización de la Parte 2
-document.addEventListener('DOMContentLoaded', () => {
-    SiapCore.renderTabla();
-    
-    // Carga de datalist (si existe puentesDB)
-    if (typeof puentesDB !== 'undefined') {
-        const list = document.getElementById('puentes-list');
-        Object.keys(puentesDB).forEach(id => {
-            let opt = document.createElement('option');
-            opt.value = puentesDB[id].nombre;
-            list.appendChild(opt);
-        });
     }
-});
 
-// Función global requerida por Parte 1
-function autoFillData(val) {
-    if (typeof puentesDB === 'undefined') return;
-    const entry = Object.entries(puentesDB).find(([id, data]) => data.nombre === val);
-    if (entry) {
-        document.getElementById('num_003').value = entry[0];
-        const ubi = entry[1].ubi.split(' / ');
-        document.getElementById('estado_004').value = ubi[0] || "";
-        document.getElementById('mun_005').value = ubi[1] || "";
+    function addNewDamage() {
+        const container = document.getElementById('damage-container');
+        const newCard = container.firstElementChild.cloneNode(true);
+        newCard.querySelector('.photo-upload').innerHTML = '<span>+ Añadir Foto</span><input type="file" accept="image/*" style="display:none" onchange="previewImage(this)">';
+        newCard.querySelector('textarea').value = '';
+        container.appendChild(newCard);
     }
-}
+
+    function saveInspeccion() {
+        alert("Sincronizando galería de daños con el expediente del puente...");
+        // Lógica para subir imágenes a Firebase Storage y metadatos a Firestore
+    }
 </script>
+
 </body>
 </html>
