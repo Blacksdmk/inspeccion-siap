@@ -35,8 +35,7 @@
 </div>
 
 <script>
-// BASE DE DATOS DE ACTIVOS (AQUÍ AGREGAS TUS PUENTES)
-// BASE DE DATOS MAESTRA DE ACTIVOS (207 PUENTES)
+// BASE DE DATOS MAESTRA DE ACTIVOS (MUESTRA DE CONTROL INTEGRADA)
 const DB_PUENTES = {
     "1": {
         nombre: "PSV 76+487 Puente Laguna Larga",
@@ -1077,32 +1076,39 @@ const DB_PUENTES = {
         municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
     }
 };
-
-
-/**
- * Función de Autocompletado optimizada
- * Basada en la estructura de los campos (002) al (006)
- */
 function autocompletarPuente(id) {
     const puente = DB_PUENTES[id];
-    const campos = {
-        'v002': 'nombre',
-        'v004': 'estado',
-        'v005_006': 'municipio_localidad' // Campo unificado según tu captura
-    };
+    
+    // Elementos del DOM a manipular
+    const campoNombre = document.getElementById('v002');
+    const campoEstado = document.getElementById('v004');
+    const campoMunicipio = document.getElementById('v005');
+    const campoLocalidad = document.getElementById('v006');
 
     if (puente) {
-        // Llenado automático de campos según la clave del diccionario
-        document.getElementById('v002').value = puente.nombre;
-        document.getElementById('v004').value = puente.estado;
-        document.getElementById('v005_006').value = puente.municipio_localidad;
+        // Asignación de datos directos
+        campoNombre.value = puente.nombre;
+        campoEstado.value = puente.estado;
+
+        // Procesamiento del campo unificado 'municipio_localidad'
+        if (puente.municipio_localidad && puente.municipio_localidad.includes(" / ")) {
+            const partes = puente.municipio_localidad.split(" / ");
+            campoMunicipio.value = partes[0] ? partes[0].trim() : "";
+            campoLocalidad.value = partes[1] ? partes[1].trim() : "";
+        } else {
+            campoMunicipio.value = puente.municipio_localidad || "";
+            campoLocalidad.value = "";
+        }
         
         // Registro de auditoría interno
         console.log(`Sistema Raphael: Datos del puente ${id} cargados con éxito.`);
         localStorage.setItem('currentBridgeID', id);
     } else {
-        // Limpieza por ID inexistente
-        Object.keys(campos).forEach(key => document.getElementById(key).value = "");
+        // Limpieza absoluta por ID inexistente o vacío
+        campoNombre.value = "";
+        campoEstado.value = "";
+        campoMunicipio.value = "";
+        campoLocalidad.value = "";
     }
 }
 
