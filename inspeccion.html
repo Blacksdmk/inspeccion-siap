@@ -71,3 +71,212 @@
         <div class="row">
             <div class="field">
                 <label>(002) NOMBRE DE LA ESTRUCTURA</label>
+                <input type="text" id="v002" readonly placeholder="Se autocompleta...">
+            </div>
+            <div class="field">
+                <label>(004) ESTADO / JURISDICCIÓN</label>
+                <input type="text" id="v004" readonly placeholder="Se autocompleta...">
+            </div>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>(005) MUNICIPIO</label>
+                <input type="text" id="v005" readonly placeholder="Se autocompleta...">
+            </div>
+            <div class="field">
+                <label>(006) LOCALIDAD</label>
+                <input type="text" id="v006" readonly placeholder="Se autocompleta...">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">2. Catálogo Fotográfico de Daños y Defectos (Página 9)</div>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <label style="display: block; margin-bottom: 10px; font-size: 11px;">Fotografía 1: Infraestructura / Subestructura</label>
+                <div id="prev-f1" class="photo-preview">Sin archivo cargado</div>
+                <input type="file" id="f1" accept="image/*" onchange="procesarImagen(this, 'prev-f1')">
+                <div style="margin-top: 10px; text-align: left;">
+                    <label>Observación Predeterminada</label>
+                    <select id="obs-f1" style="width: 100%;">
+                        <option value="Sin daños apreciables">Sin daños apreciables / Condición Estable</option>
+                        <option value="Fisuras por esfuerzo cortante en elementos de concreto">Fisuras por esfuerzo cortante en elementos de concreto</option>
+                        <option value="Socavación severa en base de apoyo / pilas">Socavación severa en base de apoyo / pilas</option>
+                        <option value="Desprendimiento de recubrimiento con acero expuesto">Desprendimiento de recubrimiento con acero expuesto</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <label style="display: block; margin-bottom: 10px; font-size: 11px;">Fotografía 2: Superestructura / Trabes</label>
+                <div id="prev-f2" class="photo-preview">Sin archivo cargado</div>
+                <input type="file" id="f2" accept="image/*" onchange="procesarImagen(this, 'prev-f2')">
+                <div style="margin-top: 10px; text-align: left;">
+                    <label>Observación Predeterminada</label>
+                    <select id="obs-f2" style="width: 100%;">
+                        <option value="Sin daños apreciables">Sin daños apreciables / Condición Estable</option>
+                        <option value="Deformación visible / Deflexión en trabes principales">Deformación visible / Deflexión en trabes principales</option>
+                        <option value="Corrosión avanzada en uniones de acero estructural">Corrosión avanzada en uniones de acero estructural</option>
+                        <option value="Agrietamiento longitudinal en losa de fondo">Agrietamiento longitudinal en losa de fondo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-submit" onclick="guardarFormularioMaestro()">GUARDAR REGISTRO GENERAL</button>
+
+<div id="modal-db" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:#1a252f;">Cargar Inventario Maestro desde Excel</h3>
+        <p style="font-size:0.85em; color:#555; line-height:1.4;">
+            Copie las filas de su Excel (**sin incluir títulos**) que contengan exactamente estas 4 columnas ordenadas: <br>
+            <strong style="color:#2980b9;">[ID] [Nombre del Puente] [Estado] [Municipio / Localidad]</strong>
+        </p>
+        <textarea id="excel_paste" placeholder="Pegue el contenido aquí (Ctrl+V)..." style="width:100%; height:150px; font-family:monospace; font-size:11px; padding:6px; box-sizing:border-box; border:1px solid #bdc3c7; border-radius:4px; resize:none;"></textarea>
+        <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn btn-back" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn btn-db" onclick="procesarYGuardarExcel()">Procesar e Importar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const folioUnico = "ICA-" + Math.floor(100000 + Math.random() * 900000);
+    let cacheImagenes = { f1: "", f2: "" };
+
+    window.onload = () => {
+        document.getElementById('lbl-folio').innerText = folioUnico;
+        document.getElementById('txt-fecha').value = new Date().toLocaleDateString('es-MX');
+        verificarEstatusBaseDatos();
+    };
+
+    function abrirModal() { document.getElementById('modal-db').style.display = 'flex'; }
+    document.getElementById('modal-db').addEventListener('click', function(e) { if(e.target === this) cerrarModal(); });
+    function cerrarModal() { document.getElementById('modal-db').style.display = 'none'; document.getElementById('excel_paste').value = ''; }
+
+    function verificarEstatusBaseDatos() {
+        const dbLocal = localStorage.getItem('siap_inventario_puentes');
+        const indicador = document.getElementById('db-indicator');
+        if (dbLocal) {
+            const tamano = Object.keys(JSON.parse(dbLocal)).length;
+            indicador.innerText = `✔️ Base de Datos Activa: ${tamano} Puentes`;
+            indicador.style.color = "#27ae60";
+        } else {
+            indicador.innerText = "⚠️ Sin Base de Datos";
+            indicador.style.color = "#c0392b";
+        }
+    }
+
+    // PROCESAMIENTO MATRICIAL DE EXCEL
+    function procesarYGuardarExcel() {
+        const rawText = document.getElementById('excel_paste').value;
+        if (!rawText.trim()) { alert("El área de texto está vacía."); return; }
+
+        const lineas = rawText.split(/\r?\n/);
+        let mapaPuentes = {};
+        let contador = 0;
+
+        lineas.forEach(linea => {
+            if (!linea.trim()) return;
+            const columnas = linea.split('\t'); // Delimitador nativo de Excel
+
+            if (columnas.length >= 4) {
+                const id = columnas[0].trim();
+                const nombre = columnas[1].trim();
+                const estado = columnas[2].trim();
+                const municipio_localidad = columnas[3].trim();
+
+                if (id) {
+                    mapaPuentes[id] = { nombre, estado, municipio_localidad };
+                    contador++;
+                }
+            }
+        });
+
+        if (contador > 0) {
+            // Se inyecta la base de datos completa como un único string JSON en LocalStorage
+            localStorage.setItem('siap_inventario_puentes', JSON.stringify(mapaPuentes));
+            alert(`Éxito total: Se procesaron e indexaron ${contador} puentes en la memoria local.`);
+            verificarEstatusBaseDatos();
+            cerrarModal();
+        } else {
+            alert("Error de formato: Asegúrese de copiar las 4 columnas requeridas desde su Excel.");
+        }
+    }
+
+    function autocompletarCamposPuente(id) {
+        const dbLocal = localStorage.getItem('siap_inventario_puentes');
+        if (!dbLocal) return;
+
+        const inventario = JSON.parse(dbLocal);
+        const puente = inventario[id.trim()];
+
+        const fNombre = document.getElementById('v002');
+        const fEstado = document.getElementById('v004');
+        const fMunicipio = document.getElementById('v005');
+        const fLocalidad = document.getElementById('v006');
+
+        if (puente) {
+            fNombre.value = puente.nombre;
+            fEstado.value = puente.estado;
+
+            if (puente.municipio_localidad && puente.municipio_localidad.includes(" / ")) {
+                const fragmentos = puente.municipio_localidad.split(" / ");
+                fMunicipio.value = fragmentos[0].trim();
+                fLocalidad.value = fragmentos[1].trim();
+            } else {
+                fMunicipio.value = puente.municipio_localidad || "";
+                fLocalidad.value = "";
+            }
+        } else {
+            fNombre.value = fEstado.value = fMunicipio.value = fLocalidad.value = "";
+        }
+    }
+
+    function procesarImagen(input, idPreview) {
+        const archivo = input.files[0];
+        if (archivo) {
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                const base64Str = e.target.result;
+                document.getElementById(idPreview).style.backgroundImage = `url(${base64Str})`;
+                document.getElementById(idPreview).innerText = "";
+                cacheImagenes[input.id] = base64Str;
+            }
+            lector.readAsDataURL(archivo);
+        }
+    }
+
+    function guardarFormularioMaestro() {
+        const pId = document.getElementById('v003').value;
+        const dbLocal = localStorage.getItem('siap_inventario_puentes');
+
+        if (!pId || !dbLocal || !JSON.parse(dbLocal)[pId.trim()]) {
+            alert("Error: Ingrese un ID de puente válido existente en la base de datos.");
+            return;
+        }
+
+        const registroCompleto = {
+            folio: folioUnico,
+            puenteId: pId.trim(),
+            nombrePuente: document.getElementById('v002').value,
+            fecha: document.getElementById('txt-fecha').value,
+            aprobado: false, // Inicia en estado pendiente para el flujo de calificación.html
+            fotos: {
+                f1_data: cacheImagenes.f1,
+                f1_obs: document.getElementById('obs-f1').value,
+                f2_data: cacheImagenes.f2,
+                f2_obs: document.getElementById('obs-f2').value
+            }
+        };
+
+        localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
+        alert(`Formulario ${folioUnico} guardado. Pase al módulo de Calificación para validarlo.`);
+        location.href = 'index.html';
+    }
+</script>
+</body>
+</html>
