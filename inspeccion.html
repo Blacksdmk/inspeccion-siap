@@ -2,138 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAP - Levantamiento de Evidencia</title>
+    <title>SIAP - Inspección de Campo</title>
     <style>
-        :root { --siap-navy: #2c3e50; --siap-accent: #3498db; --danger: #e74c3c; --border: #ddd; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { background: #eaeaea; font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #333; }
+        .control-bar { max-width: 900px; margin: auto; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sheet { background: white; width: 900px; margin: auto; padding: 40px; box-shadow: 0 0 15px rgba(0,0,0,0.15); border-radius: 4px; box-sizing: border-box; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1a252f; padding-bottom: 15px; margin-bottom: 25px; }
+        .section { border: 1px solid #1a252f; margin-bottom: 20px; border-radius: 4px; overflow: hidden; }
+        .section-title { background: #1a252f; color: white; font-weight: bold; padding: 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .row { display: flex; border-bottom: 1px solid #e0e0e0; }
+        .row:last-child { border-bottom: none; }
+        .field { padding: 12px; flex: 1; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; }
+        .field:last-child { border-right: none; }
+        label { font-size: 10px; color: #2980b9; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        input, select { border: 1px solid #bdc3c7; border-radius: 4px; padding: 6px; font-size: 13px; outline: none; background: #fff; }
+        input[readonly] { background: #f5f7f8; color: #7f8c8d; border-color: #e2e5e7; }
         
-        .header { border-bottom: 2px solid var(--siap-navy); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .session-info { font-size: 0.85em; background: #eef2f7; padding: 10px; border-radius: 5px; border: 1px solid var(--siap-accent); }
-
-        .damage-card { 
-            border: 1px solid var(--border); border-radius: 8px; padding: 15px; 
-            margin-bottom: 20px; display: grid; grid-template-columns: 220px 1fr; 
-            gap: 20px; background: #fff; position: relative; 
-        }
+        /* Contenedor Fotográfico */
+        .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 15px; }
+        .photo-card { border: 1px solid #bdc3c7; border-radius: 6px; padding: 15px; background: #fcfcfc; text-align: center; }
+        .photo-preview { width: 100%; height: 180px; border: 2px dashed #bdc3c7; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: #f8f9fa; background-size: cover; background-position: center; font-size: 0.9em; color: #7f8c8d; }
         
-        /* Botón Eliminar Daño */
-        .btn-remove { 
-            position: absolute; top: -10px; right: -10px; background: var(--danger); 
-            color: white; border: none; border-radius: 50%; width: 25px; height: 25px; 
-            cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .photo-upload { 
-            width: 200px; height: 160px; border: 2px dashed var(--siap-accent); 
-            border-radius: 6px; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; overflow: hidden; background: #f9f9f9;
-        }
-        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        /* Botones */
+        .btn { padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; font-size: 0.9em; text-decoration: none; display: inline-block; }
+        .btn-back { background: #7f8c8d; color: white; }
+        .btn-db { background: #3498db; color: white; }
+        .btn-submit { background: #27ae60; color: white; font-size: 16px; padding: 15px 40px; display: block; margin: 30px auto 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-submit:hover { background: #219653; }
         
-        .damage-info { display: flex; flex-direction: column; gap: 10px; }
-        label { font-size: 0.8em; font-weight: bold; color: var(--siap-navy); }
-        select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9em; }
-
-        .controls { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-add { background: var(--siap-accent); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; }
-        .btn-save { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 2; font-weight: bold; }
+        /* Ventana Modal de Carga */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 6px; width: 600px; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .db-status { font-size: 0.85em; color: #555; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2>LEVANTAMIENTO DE EVIDENCIA (FOTOS)</h2>
-        <div class="session-info">
-            <strong>ID REPORTE:</strong> <span id="folio-link">---</span><br>
-            <strong>PUENTE:</strong> <span id="bridge-name">No seleccionado</span>
-        </div>
-    </div>
-
-    <div id="damage-container">
-        </div>
-
-    <div class="controls">
-        <button class="btn-add" onclick="addNewDamage()">+ AGREGAR OTRO DAÑO</button>
-        <button class="btn-save" onclick="syncWithReport()">VINCULAR Y GUARDAR TODO</button>
+<div class="control-bar">
+    <a href="index.html" class="btn btn-back">← Volver al Panel</a>
+    <div>
+        <span id="db-indicator" class="db-status" style="margin-right: 15px; color: #c0392b;">⚠️ Sin Base de Datos</span>
+        <button class="btn btn-db" onclick="abrirModal()">⚙️ Cargar/Actualizar Puentes desde Excel</button>
     </div>
 </div>
 
-<script>
-    // ELEMENTOS OFICIALES PARA VINCULAR
-    const ELEMENTOS = ["Superficie de Rodamiento", "Subestructura", "Superestructura", "Apoyos", "Cauce", "Otros"];
+<div class="sheet">
+    <div class="header">
+        <div style="font-weight: bold; font-size: 1.2em; color: #1a252f;">FOLIO: <span id="lbl-folio" style="color: #e67e22;">-</span></div>
+        <div style="text-align: center;">
+            <h2 style="margin: 0; font-size: 1.5em; color: #1a252f;">SISTEMA DE ADMINISTRACIÓN DE PUENTES</h2>
+            <h4 style="margin: 5px 0 0 0; color: #7f8c8d; font-style: italic;">Registro Integrado de Datos de Campo</h4>
+        </div>
+        <div style="font-weight: bold; font-size: 1.1em; color: #34495e;">LIBRAMIENTO ICA</div>
+    </div>
 
-    // 1. ¿CÓMO SABEMOS A QUÉ REPORTE PERTENECE?
-    // Recuperamos el ID del puente y el Folio de la sesión actual (guardados en Calificacion.html)
-    document.addEventListener('DOMContentLoaded', () => {
-        const currentBridge = localStorage.getItem('currentBridgeID') || "S/N";
-        const currentFolio = localStorage.getItem('currentFolio') || "TEMP-" + Date.now();
-        
-        document.getElementById('bridge-name').innerText = currentBridge;
-        document.getElementById('folio-link').innerText = currentFolio;
-        
-        addNewDamage(); // Crear el primer espacio automáticamente
-    });
-
-    function addNewDamage() {
-        const container = document.getElementById('damage-container');
-        const card = document.createElement('div');
-        card.className = 'damage-card';
-        card.innerHTML = `
-            <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
-            <div class="photo-upload" onclick="this.querySelector('input').click()">
-                <span>+ Cargar Foto</span>
-                <input type="file" accept="image/*" style="display:none" onchange="preview(this)">
+    <div class="section">
+        <div class="section-title">1. Identificación y Ubicación del Activo</div>
+        <div class="row">
+            <div class="field" style="background: #edf2f7;">
+                <label>(003) NÚMERO DE PUENTE / CADENAMIENTO</label>
+                <input type="text" id="v003" placeholder="Ej: 1 o 125" oninput="autocompletarCamposPuente(this.value)">
             </div>
-            <div class="damage-info">
-                <div>
-                    <label>ELEMENTO DEL REPORTE</label>
-                    <select class="sel-elemento">
-                        ${ELEMENTOS.map(e => `<option>${e}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <label>DESCRIPCIÓN DEL DAÑO (OBSERVACIONES)</label>
-                    <textarea rows="3" placeholder="Describa la falla detectada..."></textarea>
-                </div>
+            <div class="field">
+                <label>Fecha de Inspección</label>
+                <input type="text" id="txt-fecha" readonly>
             </div>
-        `;
-        container.appendChild(card);
-    }
-
-    function preview(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const container = input.parentElement;
-                container.innerHTML = `<img src="${e.target.result}"><input type="file" style="display:none" onchange="preview(this)">`;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // 2. INTEGRACIÓN AL REPORTE (LÓGICA TIPO EXCEL)
-    function syncWithReport() {
-        const folio = document.getElementById('folio-link').innerText;
-        const bridge = document.getElementById('bridge-name').innerText;
-        const damages = [];
-
-        document.querySelectorAll('.damage-card').forEach(card => {
-            damages.push({
-                elemento: card.querySelector('.sel-elemento').value,
-                nota: card.querySelector('textarea').value,
-                // En producción aquí se enviaría el archivo a Firebase Storage
-            });
-        });
-
-        console.log(`Vinculando ${damages.length} fotos al folio ${folio}`);
-        alert(`Sincronización Exitosa.\nLas imágenes han sido vinculadas al Reporte Escrito: ${folio}`);
-        
-        // Redirigir al reporte final
-        // window.location.href = "reporte.html";
-    }
-</script>
-</body>
-</html>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>(002) NOMBRE DE LA ESTRUCTURA</label>
