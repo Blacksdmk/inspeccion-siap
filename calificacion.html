@@ -1,1120 +1,127 @@
-<div class="sheet">
-    <div class="section">
-        <div class="section-title">1. DATOS GENERALES</div>
-        <div class="row">
-            <div class="field" style="background: #e8f0fe;">
-                <label>(003) NÚMERO DE PUENTE / CADENAMIENTO</label>
-                <input type="text" id="v003" placeholder="Ej: 1" oninput="autocompletarPuente(this.value)">
-            </div>
-            <div class="field">
-                <label>FECHA</label>
-                <input type="text" id="fecha_actual" readonly>
-            </div>
-        </div>
-        <div class="row">
-            <div class="field">
-                <label>(002) NOMBRE DEL PUENTE</label>
-                <input type="text" id="v002" readonly style="background: #f9f9f9;">
-            </div>
-            <div class="field">
-                <label>(004) ESTADO</label>
-                <input type="text" id="v004" readonly style="background: #f9f9f9;">
-            </div>
-        </div>
-        <div class="row">
-            <div class="field">
-                <label>(005) MUNICIPIO</label>
-                <input type="text" id="v005" readonly style="background: #f9f9f9;">
-            </div>
-            <div class="field">
-                <label>(006) LOCALIDAD</label>
-                <input type="text" id="v006" readonly style="background: #f9f9f9;">
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-// BASE DE DATOS MAESTRA DE ACTIVOS (MUESTRA DE CONTROL INTEGRADA)
-const DB_PUENTES = {
-    "1": {
-        nombre: "PSV 76+487 Puente Laguna Larga",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "2": {
-        nombre: "PI 0+418.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "3": {
-        nombre: "PI 0+911.20",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "4": {
-        nombre: "PI 1+410.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "5": {
-        nombre: "PI 2+304.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "6": {
-        nombre: "PSV 2+816.50 (Eje 10)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "7": {
-        nombre: "PI 3+308.20",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "8": {
-        nombre: "PSV 3+741.00 (Eje 20)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "9": {
-        nombre: "PI 4+227.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "10": {
-        nombre: "PI 4+676.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "11": {
-        nombre: "PSV 5+100.00 (Eje 30)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "12": {
-        nombre: "PI 5+603.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "13": {
-        nombre: "PI 6+122.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "14": {
-        nombre: "PI 6+614.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "15": {
-        nombre: "PSV 7+100.00 (Eje 40)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "16": {
-        nombre: "PI 7+614.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "17": {
-        nombre: "PI 8+122.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "18": {
-        nombre: "PSV 8+543.00 (Eje 50)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "19": {
-        nombre: "PI 9+021.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "20": {
-        nombre: "PI 9+514.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    // Nota: El patrón se repite para los 207 elementos de la tabla.
-    // CONTINUACIÓN DE LA BASE DE DATOS MAESTRA (BLOQUE 2)
-    "21": {
-        nombre: "PI 10+045.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "22": {
-        nombre: "PI 10+560.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "23": {
-        nombre: "PSV 11+120.00 (Eje 60)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "24": {
-        nombre: "PI 11+640.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "25": {
-        nombre: "PI 12+150.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "26": {
-        nombre: "PI 12+680.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "27": {
-        nombre: "PSV 13+210.00 (Eje 70)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "28": {
-        nombre: "PI 13+740.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "29": {
-        nombre: "PI 14+250.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "30": {
-        nombre: "PI 14+780.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "31": {
-        nombre: "PSV 15+320.00 (Eje 80)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "32": {
-        nombre: "PI 15+850.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "33": {
-        nombre: "PI 16+360.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "34": {
-        nombre: "PI 16+890.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "35": {
-        nombre: "PSV 17+410.00 (Eje 90)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "36": {
-        nombre: "PI 17+940.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "37": {
-        nombre: "PI 18+450.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "38": {
-        nombre: "PI 18+980.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "39": {
-        nombre: "PSV 19+520.00 (Eje 100)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "40": {
-        nombre: "PI 20+050.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "41": {
-        nombre: "PI 20+560.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "42": {
-        nombre: "PI 21+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "43": {
-        nombre: "PSV 21+610.00 (Eje 110)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "44": {
-        nombre: "PI 22+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "45": {
-        nombre: "PI 22+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "46": {
-        nombre: "PI 23+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "47": {
-        nombre: "PSV 23+720.00 (Eje 120)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "48": {
-        nombre: "PI 24+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "49": {
-        nombre: "PI 24+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "50": {
-        nombre: "PI 25+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "51": {
-        nombre: "PSV 25+610.00 (Eje 130)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "52": {
-        nombre: "PI 26+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "53": {
-        nombre: "PI 26+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "54": {
-        nombre: "PI 27+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "55": {
-        nombre: "PSV 27+720.00 (Eje 140)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "56": {
-        nombre: "PI 28+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "57": {
-        nombre: "PI 28+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "58": {
-        nombre: "PI 29+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "59": {
-        nombre: "PSV 29+610.00 (Eje 150)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "60": {
-        nombre: "PI 30+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "61": {
-        nombre: "PI 30+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "62": {
-        nombre: "PI 31+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "63": {
-        nombre: "PSV 31+720.00 (Eje 160)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "64": {
-        nombre: "PI 32+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "65": {
-        nombre: "PI 32+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "66": {
-        nombre: "PI 33+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "67": {
-        nombre: "PSV 33+610.00 (Eje 170)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "68": {
-        nombre: "PI 34+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "69": {
-        nombre: "PI 34+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "70": {
-        nombre: "PI 35+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "71": {
-        nombre: "PSV 35+720.00 (Eje 180)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "72": {
-        nombre: "PI 36+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "73": {
-        nombre: "PI 36+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "74": {
-        nombre: "PI 37+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "75": {
-        nombre: "PSV 37+610.00 (Eje 190)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "76": {
-        nombre: "PI 38+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "77": {
-        nombre: "PI 38+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "78": {
-        nombre: "PI 39+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "79": {
-        nombre: "PSV 39+720.00 (Eje 200)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "80": {
-        nombre: "PI 40+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "81": {
-        nombre: "PI 40+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "82": {
-        nombre: "PI 41+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "83": {
-        nombre: "PSV 41+610.00 (Eje 210)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "84": {
-        nombre: "PI 42+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "85": {
-        nombre: "PI 42+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "86": {
-        nombre: "PI 43+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "87": {
-        nombre: "PSV 43+720.00 (Eje 220)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "88": {
-        nombre: "PI 44+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "89": {
-        nombre: "PI 44+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "90": {
-        nombre: "PI 45+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "91": {
-        nombre: "PSV 45+610.00 (Eje 230)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "92": {
-        nombre: "PI 46+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "93": {
-        nombre: "PI 46+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "94": {
-        nombre: "PI 47+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "95": {
-        nombre: "PSV 47+720.00 (Eje 240)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "96": {
-        nombre: "PI 48+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "97": {
-        nombre: "PI 48+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "98": {
-        nombre: "PI 49+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "99": {
-        nombre: "PSV 49+610.00 (Eje 250)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "100": {
-        nombre: "PI 50+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "101": {
-        nombre: "PI 50+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "102": {
-        nombre: "PI 51+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "103": {
-        nombre: "PSV 51+720.00 (Eje 260)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "104": {
-        nombre: "PI 52+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "105": {
-        nombre: "PI 52+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "106": {
-        nombre: "PI 53+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "107": {
-        nombre: "PSV 53+610.00 (Eje 270)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "108": {
-        nombre: "PI 54+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "109": {
-        nombre: "PI 54+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "110": {
-        nombre: "PI 55+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "111": {
-        nombre: "PSV 55+720.00 (Eje 280)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "112": {
-        nombre: "PI 56+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "113": {
-        nombre: "PI 56+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "114": {
-        nombre: "PI 57+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "115": {
-        nombre: "PSV 57+610.00 (Eje 290)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "116": {
-        nombre: "PI 58+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "117": {
-        nombre: "PI 58+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "118": {
-        nombre: "PI 59+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "119": {
-        nombre: "PSV 59+720.00 (Eje 300)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "120": {
-        nombre: "PI 60+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    // CONTINUACIÓN Y CIERRE DE LA BASE DE DATOS MAESTRA (BLOQUE 3)
-    "121": {
-        nombre: "PI 60+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "122": {
-        nombre: "PI 61+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "123": {
-        nombre: "PSV 61+720.00 (Eje 310)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "124": {
-        nombre: "PI 62+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "125": {
-        nombre: "PI 62+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "126": {
-        nombre: "PI 63+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "127": {
-        nombre: "PSV 63+610.00 (Eje 320)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "128": {
-        nombre: "PI 64+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "129": {
-        nombre: "PI 64+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "130": {
-        nombre: "PI 65+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "131": {
-        nombre: "PSV 65+720.00 (Eje 330)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "132": {
-        nombre: "PI 66+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "133": {
-        nombre: "PI 66+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "134": {
-        nombre: "PI 67+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "135": {
-        nombre: "PSV 67+610.00 (Eje 340)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "136": {
-        nombre: "PI 68+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "137": {
-        nombre: "PI 68+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "138": {
-        nombre: "PI 69+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "139": {
-        nombre: "PSV 69+720.00 (Eje 350)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "140": {
-        nombre: "PI 70+050.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "141": {
-        nombre: "PI 70+560.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "142": {
-        nombre: "PI 71+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "143": {
-        nombre: "PSV 71+610.00 (Eje 360)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "144": {
-        nombre: "PI 72+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "145": {
-        nombre: "PI 72+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA Kahn / Libramiento Norte"
-    },
-    "146": {
-        nombre: "PI 73+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "147": {
-        nombre: "PSV 73+720.00 (Eje 370)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "148": {
-        nombre: "PI 74+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "149": {
-        nombre: "PI 74+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "150": {
-        nombre: "PI 75+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "151": {
-        nombre: "PSV 75+610.00 (Eje 380)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "152": {
-        nombre: "PI 76+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "153": {
-        nombre: "PI 76+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "154": {
-        nombre: "PI 77+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "155": {
-        nombre: "PSV 77+720.00 (Eje 390)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "156": {
-        nombre: "PI 78+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "157": {
-        nombre: "PI 78+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "158": {
-        nombre: "PI 79+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "159": {
-        nombre: "PSV 79+610.00 (Eje 400)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "160": {
-        nombre: "PI 80+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "161": {
-        nombre: "PI 80+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "162": {
-        nombre: "PI 81+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "163": {
-        nombre: "PSV 81+720.00 (Eje 410)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "164": {
-        nombre: "PI 82+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "165": {
-        nombre: "PI 82+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "166": {
-        nombre: "PI 83+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "167": {
-        nombre: "PSV 83+610.00 (Eje 420)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "168": {
-        nombre: "PI 84+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "169": {
-        nombre: "PI 84+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "170": {
-        nombre: "PI 85+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "171": {
-        nombre: "PSV 85+720.00 (Eje 430)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "172": {
-        nombre: "PI 86+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "173": {
-        nombre: "PI 86+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "174": {
-        nombre: "PI 87+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "175": {
-        nombre: "PSV 87+610.00 (Eje 440)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "176": {
-        nombre: "PI 88+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "177": {
-        nombre: "PI 88+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "178": {
-        nombre: "PI 89+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "179": {
-        nombre: "PSV 89+720.00 (Eje 450)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "180": {
-        nombre: "PI 90+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "181": {
-        nombre: "PI 90+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "182": {
-        nombre: "PI 91+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "183": {
-        nombre: "PSV 91+610.00 (Eje 460)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "184": {
-        nombre: "PI 92+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "185": {
-        nombre: "PI 92+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "186": {
-        nombre: "PI 93+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "187": {
-        nombre: "PSV 93+720.00 (Eje 470)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "188": {
-        nombre: "PI 94+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "189": {
-        nombre: "PI 94+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "190": {
-        nombre: "PI 95+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "191": {
-        nombre: "PSV 95+610.00 (Eje 480)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "192": {
-        nombre: "PI 96+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "193": {
-        nombre: "PI 96+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "194": {
-        nombre: "PI 97+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "195": {
-        nombre: "PSV 97+720.00 (Eje 490)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "196": {
-        nombre: "PI 98+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "197": {
-        nombre: "PI 98+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "198": {
-        nombre: "PI 99+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "199": {
-        nombre: "PSV 99+610.00 (Eje 500)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "200": {
-        nombre: "PI 100+140.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "201": {
-        nombre: "PI 100+650.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "202": {
-        nombre: "PI 101+180.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "203": {
-        nombre: "PSV 101+720.00 (Eje 510)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "204": {
-        nombre: "PI 102+250.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "205": {
-        nombre: "PI 102+760.50",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "206": {
-        nombre: "PI 103+090.00",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    },
-    "207": {
-        nombre: "PSV 103+610.00 (Eje 520)",
-        estado: "GTO.- JAL.- MICH.",
-        municipio_localidad: "Libramiento ICA La Piedad / Libramiento Norte"
-    }
-};
-function autocompletarPuente(id) {
-    const puente = DB_PUENTES[id];
-    
-    // Elementos del DOM a manipular
-    const campoNombre = document.getElementById('v002');
-    const campoEstado = document.getElementById('v004');
-    const campoMunicipio = document.getElementById('v005');
-    const campoLocalidad = document.getElementById('v006');
-
-    if (puente) {
-        // Asignación de datos directos
-        campoNombre.value = puente.nombre;
-        campoEstado.value = puente.estado;
-
-        // Procesamiento del campo unificado 'municipio_localidad'
-        if (puente.municipio_localidad && puente.municipio_localidad.includes(" / ")) {
-            const partes = puente.municipio_localidad.split(" / ");
-            campoMunicipio.value = partes[0] ? partes[0].trim() : "";
-            campoLocalidad.value = partes[1] ? partes[1].trim() : "";
-        } else {
-            campoMunicipio.value = puente.municipio_localidad || "";
-            campoLocalidad.value = "";
-        }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIAP - Panel de Calificación</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a252f; color: #e4e7eb; margin: 40px; }
+        .container { max-width: 1100px; margin: auto; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #34495e; padding-bottom: 20px; margin-bottom: 30px; }
+        h2 { margin: 0; color: #1abc9c; text-transform: uppercase; }
+        .btn-back { background: #7f8c8d; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 0.9em; }
+        .btn-back:hover { background: #95a5a6; }
         
-        // Registro de auditoría interno
-        console.log(`Sistema Raphael: Datos del puente ${id} cargados con éxito.`);
-        localStorage.setItem('currentBridgeID', id);
-    } else {
-        // Limpieza absoluta por ID inexistente o vacío
-        campoNombre.value = "";
-        campoEstado.value = "";
-        campoMunicipio.value = "";
-        campoLocalidad.value = "";
-    }
-}
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #2c3e50; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #34495e; }
+        th { background: #111a22; color: #1abc9c; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: #34495e; }
+        
+        .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; text-transform: uppercase; }
+        .status-pending { background: #e67e22; color: #fff; }
+        .status-approved { background: #27ae60; color: #fff; }
+        
+        .btn-action { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em; margin-right: 5px; transition: background 0.2s; }
+        .btn-delete { background: #c0392b; color: white; }
+        .btn-delete:hover { background: #e74c3c; }
+        .btn-approve { background: #27ae60; color: white; }
+        .btn-approve:hover { background: #2ecc71; }
+        
+        .no-data { text-align: center; padding: 40px; color: #7f8c8d; background: #2c3e50; border-radius: 6px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-area">
+            <h2>Calificación y Validación de Formularios</h2>
+            <a href="index.html" class="btn-back">← Volver al Menú Principal</a>
+        </div>
 
-// Rellenar fecha automáticamente al cargar
-window.onload = () => {
-    const hoy = new Date();
-    document.getElementById('fecha_actual').value = hoy.toLocaleDateString('es-MX');
-};
-</script>
+        <div id="tabla-vacia" class="no-data">No se han detectado formularios de inspección registrados en la memoria local.</div>
+        
+        <table id="tabla-registros" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Folio Único</th>
+                    <th>ID Activo</th>
+                    <th>Nombre de Estructura</th>
+                    <th>Fecha Captura</th>
+                    <th>Estado de Validación</th>
+                    <th>Acciones de Control</th>
+                </tr>
+            </thead>
+            <tbody id="lista-formularios"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Carga inicial al desplegar el documento
+        window.onload = () => {
+            cargarRegistrosLocales();
+        };
+
+        function cargarRegistrosLocales() {
+            const tbody = document.getElementById('lista-formularios');
+            const tabla = document.getElementById('tabla-registros');
+            const mensajeVacio = document.getElementById('tabla-vacia');
+            tbody.innerHTML = '';
+            
+            let conteoRegistros = 0;
+
+            // Iteración sobre el total del mapa de memoria de almacenamiento
+            for (let i = 0; i < localStorage.length; i++) {
+                const clave = localStorage.key(i);
+                
+                // Filtro exclusivo por prefijo de folio de inspección estructural
+                if (clave.startsWith('siap_folio_')) {
+                    conteoRegistros++;
+                    const datos = JSON.parse(localStorage.getItem(clave));
+                    
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td style="font-family: monospace; font-weight: bold; color: #1abc9c;">${datos.folio}</td>
+                        <td style="font-weight: bold;">${datos.puenteId}</td>
+                        <td>${datos.nombrePuente}</td>
+                        <td>${datos.fecha}</td>
+                        <td>
+                            <span class="status-badge ${datos.aprobado ? 'status-approved' : 'status-pending'}">
+                                ${datos.aprobado ? 'Aceptado' : 'Pendiente'}
+                            </span>
+                        </td>
+                        <td>
+                            ${!datos.aprobado ? `<button class="btn-action btn-approve" onclick="aprobarInspeccion('${datos.folio}')">Aceptar</button>` : ''}
+                            <button class="btn-action btn-delete" onclick="eliminarInspeccion('${datos.folio}')">Borrar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(fila);
+                }
+            }
+
+            // Control de renderizado de la UI basado en volumetría de datos
+            if (conteoRegistros > 0) {
+                tabla.style.display = 'table';
+                mensajeVacio.style.display = 'none';
+            } else {
+                tabla.style.display = 'none';
+                mensajeVacio.style.display = 'block';
+            }
+        }
+
+        function aprobarInspeccion(folio) {
+            const clave = 'siap_folio_' + folio;
+            let registro = JSON.parse(localStorage.getItem(clave));
+            if (registro) {
+                registro.aprobado = true; // Transición de estado
+                localStorage.setItem(clave, JSON.stringify(registro));
+                cargarRegistrosLocales();
+            }
+        }
+
+        function eliminarInspeccion(folio) {
+            if (confirm(`Aviso crítico: ¿Está completamente seguro de eliminar permanentemente el folio ${folio}? Esta acción no se puede deshacer.`)) {
+                localStorage.removeItem('siap_folio_' + folio);
+                cargarRegistrosLocales();
+            }
+        }
+    </script>
+</body>
+</html>
