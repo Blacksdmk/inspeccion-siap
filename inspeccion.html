@@ -814,21 +814,33 @@
         }
     }
 
-  function guardarFormularioMaestro() {
-        const pId = document.getElementById('v003').value;
+ function guardarFormularioMaestro() {
+        // 1. Validación inicial obligatoria de existencia del ID
+        const pIdElement = document.getElementById('v003');
+        const pId = pIdElement ? pIdElement.value.trim() : "";
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
 
-        if (!pId || !dbLocal || !JSON.parse(dbLocal)[pId.trim()]) {
-            alert("Error: Ingrese un ID de puente válido existente en la base de datos.");
+        if (!pId) {
+            alert("Error: El campo de ID de puente (v003) no se encuentra o está vacío.");
             return;
         }
 
-        const registroCompleto = {
-            folio: folioUnico,
-            puenteId: pId.trim(),
-            nombrePuente: document.getElementById('v002').value,
-            fecha: document.getElementById('txt-fecha').value,
-            aprobado: false,
+        if (!dbLocal || !JSON.parse(dbLocal)[pId]) {
+            alert("Error: Ingrese un ID de puente válido que exista en la base de datos local.");
+            return;
+        }
+
+        // 2. Procesamiento del promedio del módulo 8 (Evita colisión de nombres)
+        let promedioFinal = "4.00";
+        if (typeof calcularTotalCalificacion === "function") {
+            promedioFinal = calcularTotalCalificacion();
+        }
+
+        // 3. Función auxiliar de recolección segura de valores del DOM
+        const getVal = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value : "";
+        };
             
             // MODULO 2: Condición General del Puente
             condicionGeneral: {
@@ -935,17 +947,21 @@
                 superestructura: document.getElementById('v071_recomendacion_superestructura').value,       // (071)
                 subestructura: document.getElementById('v072_recomendacion_subestructura').value            // (072)
             },
+           // 5. Manejo del buffer multimedia de imágenes cargadas
             fotos: {
-                f1_data: cacheImagenes.f1,
-                f1_obs: document.getElementById('obs-f1').value,
-                f2_data: cacheImagenes.f2,
-                f2_obs: document.getElementById('obs-f2').value
+                f1_data: (typeof cacheImagenes !== 'undefined' && cacheImagenes.f1) ? cacheImagenes.f1 : "",
+                f1_obs: getVal('obs-f1'),
+                f2_data: (typeof cacheImagenes !== 'undefined' && cacheImagenes.f2) ? cacheImagenes.f2 : "",
+                f2_obs: getVal('obs-f2')
             }
         };
 
-     localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
-        alert(`Formulario ${folioUnico} guardado con éxito. Se incluyeron las recomendaciones generales.`);
-        location.href = 'index.html';
+        // 6. Inyección física en el almacenamiento persistente
+        const llaveClave = 'siap_folio_' + registroCompleto.folio;
+        localStorage.setItem(llaveClave, JSON.stringify(registroCompleto));
+        
+        alert(`Formulario de Inspección ${registroCompleto.folio} exportado exitosamente.`);
+        location.href = 'reportes.html?folio=' + registroCompleto.folio;
     }
 </script>
 </body>
