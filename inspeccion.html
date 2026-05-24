@@ -863,144 +863,120 @@
         }
     }
 
- function guardarFormularioMaestro() {
-        // 1. Validación inicial obligatoria de existencia del ID
+    // =========================================================================
+    // 8. PERSISTENCIA INTEGRAL SEGURA (MAPPING DE MÓDULOS DEL REPORTE)
+    // =========================================================================
+    function guardarFormularioMaestro() {
         const pIdElement = document.getElementById('v003');
         const pId = pIdElement ? pIdElement.value.trim() : "";
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
 
         if (!pId) {
-            alert("Error: El campo de ID de puente (v003) no se encuentra o está vacío.");
+            alert("Error: El campo de ID de puente (v003) está vacío.");
             return;
         }
 
         if (!dbLocal || !JSON.parse(dbLocal)[pId]) {
-            alert("Error: Ingrese un ID de puente válido que exista en la base de datos local.");
+            alert("Error: El ID ingresado no coincide con ningún puente registrado.");
             return;
         }
 
-        // 2. Procesamiento del promedio del módulo 8 (Evita colisión de nombres)
         let promedioFinal = "4.00";
         if (typeof calcularTotalCalificacion === "function") {
             promedioFinal = calcularTotalCalificacion();
         }
 
-        // 3. Función auxiliar de recolección segura de valores del DOM
         const getVal = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : "";
         };
+
+        const registroCompleto = {
+            folio: folioUnico,
+            puenteId: pId,
+            nombrePuente: getVal('v002'),
+            fecha: getVal('txt-fecha'),
+            aprobado: false,
             
-            // MODULO 2: Condición General del Puente
             condicionGeneral: {
-                hundimiento: document.getElementById('v004_hundimiento').value,
-                desplome: document.getElementById('v005_desplome').value,
-                socavacion: document.getElementById('v006_socavacion').value,
-                flechas: document.getElementById('v007_flechas').value,
-                corrosion: document.getElementById('v008_corrosion').value,
-                otro: document.getElementById('v009_otro').value,
-                cauceRio: document.getElementById('v010_cauce').value,
-                indicaGalibos: document.getElementById('v011_galibos').value,
-                senalizacionSeguridad: document.getElementById('v012_seguridad').value,
-                comentarios: document.getElementById('v013_comentarios').value
+                hundimiento: getVal('v004_hundimiento'),
+                desplome: getVal('v005_desplome'),
+                socavacion: getVal('v006_socavacion'),
+                flechas: getVal('v007_flechas'),
+                corrosion: getVal('v008_corrosion'),
+                otro: getVal('v009_otro'),
+                cauceRio: getVal('v010_cauce'),
+                indicaGalibos: getVal('v011_galibos'),
+                senalizacionSeguridad: getVal('v012_seguridad'),
+                comentarios: getVal('v013_comentarios')
             },
 
-            // MODULO 3: Superficie de Rodamiento
             superficieRodamiento: {
-                condicion: document.getElementById('v014_condicion_rodamiento').value,
-                espesorCarpeta: document.getElementById('v015_espesor_carpeta').value,
-                comentarios: document.getElementById('v016_comentarios_rodamiento').value
+                condicion: getVal('v014_condicion_rodamiento'),
+                espesorCarpeta: getVal('v015_espesor_carpeta'),
+                comentarios: getVal('v016_comentarios_rodamiento')
             },
 
-            // MODULO 4: Superestructura de Concreto
             superestructuraConcreto: {
-                agrietamientoApoyos: document.getElementById('v017_agrietamiento_apoyos').value,
-                agrietamientoClaro: document.getElementById('v018_agrietamiento_claro').value,
-                agrietamientoLosas: document.getElementById('v019_agrietamiento_losas').value,
-                agrietamientoDiafragmas: document.getElementById('v020_agrietamiento_diafragmas').value,
-                juntasExpansion: document.getElementById('v021_juntas_expansion').value,
-                dispositivosApoyo: document.getElementById('v022_dispositivos_apoyo').value,
-                impactoGalibo: document.getElementById('v023_impacto_galibo').value,
-                impactoGeneral: document.getElementById('v024_impacto_general').value,
-                drenaje: document.getElementById('v025_drenaje').value,
-                desconchamiento: document.getElementById('v026_desconchamiento_superestructura').value,
-                ubicacionDesconchamiento: document.getElementById('v027_ubicacion_desconchamiento').value,
-                dimensionDesconchamiento: document.getElementById('v028_dimension_desconchamiento').value,
-                comentarios: document.getElementById('v029_comentarios_superestructura').value
+                agrietamientoApoyos: getVal('v017_agrietamiento_apoyos'),
+                agrietamientoClaro: getVal('v018_agrietamiento_claro'),
+                agrietamientoLosas: getVal('v019_agrietamiento_losas'),
+                agrietamientoDiafragmas: getVal('v020_agrietamiento_diafragmas'),
+                juntasExpansion: getVal('v021_juntas_expansion'),
+                dispositivosApoyo: getVal('v022_dispositivos_apoyo'),
+                impactoGalibo: getVal('v023_impacto_galibo'),
+                impactoGeneral: getVal('v024_impacto_general'),
+                drenaje: getVal('v025_drenaje'),
+                desconchamiento: getVal('v026_desconchamiento_superestructura'),
+                ubicacionDesconchamiento: getVal('v027_ubicacion_desconchamiento'),
+                dimensionDesconchamiento: getVal('v028_dimension_desconchamiento'),
+                comentarios: getVal('v029_comentarios_superestructura')
             },
 
-            // MODULO 5: Subestructura de Concreto
             subestructuraConcreto: {
-                agrietamientoCaballetesExtremos: document.getElementById('v030_agrietamiento_caballetes_extremos').value,
-                agrietamientoCaballetesIntermedios: document.getElementById('v031_agrietamiento_caballetes_intermedios').value,
-                desconchamientoPilasCaballetes: document.getElementById('v032_desconchamiento_pilas_caballetes').value,
-                comentarios: document.getElementById('v029_comentarios_subestructura').value
+                agrietamientoCaballetesExtremos: getVal('v030_agrietamiento_caballetes_extremos'),
+                agrietamientoCaballetesIntermedios: getVal('v031_agrietamiento_caballetes_intermedios'),
+                desconchamientoPilasCaballetes: getVal('v032_desconchamiento_pilas_caballetes'),
+                comentarios: getVal('v029_comentarios_subestructura')
             },
 
-            // NUEVO MODULO 6 AUTOGENERADO: Puentes de Acero (No Aplica de manera fija)
             puentesAcero: {
-                // Superestructura
-                supPinturaAnticorrosiva: "5.- No aplica", // (034)
-                supCorrosion: "5.- No aplica",            // (035)
-                supElementosRotos: "NO",                  // (036)
-                supElementosFaltantes: "NO",              // (037)
-                supElementosDeformados: "NO",             // (038)
-                supDanoSoldaduras: "5.- No aplica",       // (039)
-                supDanoPernosRemaches: "5.- No aplica",   // (040)
-                supComentarioGeneral: "Estructura de concreto / No aplica puente de acero", // (041)
-                
-                // Subestructura
-                subPinturaAnticorrosiva: "5.- No aplica", // (042)
-                subCorrosion: "5.- No aplica",            // (043)
-                subElementosRotos: "NO",                  // (044)
-                subElementosFaltantes: "NO",              // (045)
-                subElementosDeformados: "NO",             // (046)
-                subDanoSoldaduras: "5.- No aplica",       // (047)
-                subDanoPernosRemaches: "5.- No aplica",   // (048)
-                subComentarioGeneral: "------"            // (049)
+                supPinturaAnticorrosiva: "5.- No aplica", supCorrosion: "5.- No aplica", supElementosRotos: "NO", supElementosFaltantes: "NO", supElementosDeformados: "NO", supDanoSoldaduras: "5.- No aplica", supDanoPernosRemaches: "5.- No aplica", supComentarioGeneral: "Estructura de concreto / No aplica puente de acero",
+                subPinturaAnticorrosiva: "5.- No aplica", subCorrosion: "5.- No aplica", subElementosRotos: "NO", subElementosFaltantes: "NO", subElementosDeformados: "NO", subDanoSoldaduras: "5.- No aplica", subDanoPernosRemaches: "5.- No aplica", subComentarioGeneral: "------"
             },
 
-            // NUEVO MODULO 7 MIXTO: Puentes de Concreto Presforzado
             concretoPresforzado: {
-                // Datos dinámicos de la Superestructura (Llenados en campo)
-                supDuctosCables: document.getElementById('v050_ductos_cables').value,     // (050)
-                supAnclajesSueltos: document.getElementById('v051_anclajes_sueltos').value, // (051)
-                supCablesRotos: document.getElementById('v052_cables_rotos').value,         // (052)
-                supVainasRotas: document.getElementById('v053_vainas_rotas').value,         // (053)
-                supCorrosionCables: document.getElementById('v054_corrosion_cables').value, // (054)
-                supComentarioGeneral: document.getElementById('v055_comentario_sup_presforzado').value, // (055)
-                
-                // Datos autogenerados de la Subestructura (No aplica)
-                subDuctosCables: "NO",             // (056)
-                subAnclajesSueltos: "NO",          // (057)
-                subCablesRotos: "NO",              // (058)
-                subVainasRotas: "NO",              // (059)
-                subCorrosionCables: "NO",          // (060)
-                subComentarioGeneral: "------"     // (061)
+                supDuctosCables: getVal('v050_ductos_cables') || "NO",
+                supAnclajesSueltos: getVal('v051_anclajes_sueltos') || "NO",
+                supCablesRotos: getVal('v052_cables_rotos') || "NO",
+                supVainasRotas: getVal('v053_vainas_rotas') || "NO",
+                supCorrosionCables: getVal('v054_corrosion_cables') || "NO",
+                supComentarioGeneral: getVal('v055_comentario_sup_presforzado'),
+                subDuctosCables: "NO", subAnclajesSueltos: "NO", subCablesRotos: "NO", subVainasRotas: "NO", subCorrosionCables: "NO", subComentarioGeneral: "------"
             },
-            // NUEVO MODULO 8: Calificación General del Puente
+
             calificacionGeneral: {
-                socavacion: document.getElementById('v062_socavacion').value,         // (062)
-                cimentacion: document.getElementById('v063_cimentacion').value,       // (063)
-                apoyos: document.getElementById('v064_apoyos').value,                 // (064)
-                pilas: document.getElementById('v065_pilas').value,                   // (065)
-                sistemaPiso: document.getElementById('v066_sistema_piso').value,       // (066)
-                vigasDiafragmas: document.getElementById('v067_vigas_diafragmas').value,// (067)
-                dispositivosApoyo: document.getElementById('v068_dispositivos_apoyo').value, // (068)
-                totalCalculado: totalCalculado                                        // TOTAL
+                socavacion: getVal('v062_socavacion') || "4",
+                cimentacion: getVal('v063_cimentacion') || "4",
+                apoyos: getVal('v064_apoyos') || "4",
+                pilas: getVal('v065_pilas') || "4",
+                sistemaPiso: getVal('v066_sistema_piso') || "4",
+                vigasDiafragmas: getVal('v067_vigas_diafragmas') || "4",
+                dispositivosApoyo: getVal('v068_dispositivos_apoyo') || "4",
+                totalCalculado: promedioFinal
             },
-            // NUEVO MODULO 9: Recomendaciones Generales
+
             recomendacionesGenerales: {
-                inspecciones: document.getElementById('v069_inspecciones').value,                           // (069)
-                superficieRodamiento: document.getElementById('v070_recomendacion_rodamiento').value,       // (070)
-                superestructura: document.getElementById('v071_recomendacion_superestructura').value,       // (071)
-                subestructura: document.getElementById('v072_recomendacion_subestructura').value            // (072)
+                inspecciones: getVal('v069_inspecciones'),
+                superficieRodamiento: getVal('v070_recomendacion_rodamiento'),
+                superestructura: getVal('v071_recomendacion_superestructura'),
+                subestructura: getVal('v072_recomendacion_subestructura')
             },
-           // 5. Manejo del buffer multimedia de imágenes cargadas
+            
             fotos: {
-                f1_data: (typeof cacheImagenes !== 'undefined' && cacheImagenes.f1) ? cacheImagenes.f1 : "",
+                f1_data: cacheImagenes.f1,
                 f1_obs: getVal('obs-f1'),
-                f2_data: (typeof cacheImagenes !== 'undefined' && cacheImagenes.f2) ? cacheImagenes.f2 : "",
+                f2_data: cacheImagenes.f2,
                 f2_obs: getVal('obs-f2')
             }
         };
