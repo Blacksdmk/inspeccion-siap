@@ -691,18 +691,46 @@
 </div>
 
 <script>
+    // =========================================================================
+    // 1. VARIABLES GLOBALES Y CONTROL DE CACHÉ INTERNA
+    // =========================================================================
     const folioUnico = "ICA-" + Math.floor(100000 + Math.random() * 900000);
     let cacheImagenes = { f1: "", f2: "" };
 
-    window.onload = () => {
+    // =========================================================================
+    // 2. CICLO DE VIDA DEL DOM (VINCULACIÓN DE EVENTOS SEGUROS)
+    // =========================================================================
+    window.onload = function() {
         document.getElementById('lbl-folio').innerText = folioUnico;
         document.getElementById('txt-fecha').value = new Date().toLocaleDateString('es-MX');
         verificarEstatusBaseDatos();
+
+        // Enlace rígido por ID para mitigar bloqueos de interfaz
+        const btnConfig = document.getElementById('btn-abrir-config');
+        if (btnConfig) {
+            btnConfig.addEventListener('click', abrirModal);
+        }
     };
 
-    function abrirModal() { document.getElementById('modal-db').style.display = 'flex'; }
-    document.getElementById('modal-db').addEventListener('click', function(e) { if(e.target === this) cerrarModal(); });
-    function cerrarModal() { document.getElementById('modal-db').style.display = 'none'; document.getElementById('excel_paste').value = ''; }
+    // Cerrar ventana modal de forma segura si se hace clic fuera del recuadro
+    window.onclick = function(e) {
+        const modal = document.getElementById('modal-db');
+        if (e.target === modal) {
+            cerrarModal();
+        }
+    };
+
+    // =========================================================================
+    // 3. MÓDULO DE CONTROL DE VENTANA MODAL (CARGA MASIVA EXCEL)
+    // =========================================================================
+    function abrirModal() { 
+        document.getElementById('modal-db').style.display = 'flex'; 
+    }
+
+    function cerrarModal() { 
+        document.getElementById('modal-db').style.display = 'none'; 
+        document.getElementById('excel_paste').value = ''; 
+    }
 
     function verificarEstatusBaseDatos() {
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
@@ -717,10 +745,15 @@
         }
     }
 
-    // PROCESAMIENTO MATRICIAL DE EXCEL
+    // =========================================================================
+    // 4. PROCESAMIENTO MATRICIAL DE DATOS DESDE PORTAPAPELES (EXCEL)
+    // =========================================================================
     function procesarYGuardarExcel() {
         const rawText = document.getElementById('excel_paste').value;
-        if (!rawText.trim()) { alert("El área de texto está vacía."); return; }
+        if (!rawText.trim()) { 
+            alert("El área de texto está vacía."); 
+            return; 
+        }
 
         const lineas = rawText.split(/\r?\n/);
         let mapaPuentes = {};
@@ -728,7 +761,7 @@
 
         lineas.forEach(linea => {
             if (!linea.trim()) return;
-            const columnas = linea.split('\t'); // Delimitador nativo de Excel
+            const columnas = linea.split('\t'); // Tabulación nativa de Excel
 
             if (columnas.length >= 4) {
                 const id = columnas[0].trim();
@@ -737,23 +770,29 @@
                 const municipio_localidad = columnas[3].trim();
 
                 if (id) {
-                    mapaPuentes[id] = { nombre, estado, municipio_localidad };
+                    mapaPuentes[id] = { 
+                        nombre: nombre, 
+                        estado: estado, 
+                        municipio_localidad: municipio_localidad 
+                    };
                     contador++;
                 }
             }
         });
 
         if (contador > 0) {
-            // Se inyecta la base de datos completa como un único string JSON en LocalStorage
             localStorage.setItem('siap_inventario_puentes', JSON.stringify(mapaPuentes));
-            alert(`Éxito total: Se procesaron e indexaron ${contador} puentes en la memoria local.`);
+            alert(`Éxito: Se indexaron ${contador} puentes en LocalStorage.`);
             verificarEstatusBaseDatos();
             cerrarModal();
         } else {
-            alert("Error de formato: Asegúrese de copiar las 4 columnas requeridas desde su Excel.");
+            alert("Error de formato: Copie las 4 columnas requeridas de Excel.");
         }
     }
 
+    // =========================================================================
+    // 5. AUTOCOMPLETADO Y PARSEO DE UBICACIÓN
+    // =========================================================================
     function autocompletarCamposPuente(id) {
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
         if (!dbLocal) return;
@@ -782,6 +821,10 @@
             fNombre.value = fEstado.value = fMunicipio.value = fLocalidad.value = "";
         }
     }
+
+    // =========================================================================
+    // 6. CONTROLADORES MATEMÁTICOS (CÁLCULO DE CALIFICACIÓN GENERAL)
+    // =========================================================================
     function calcularTotalCalificacion() {
         const inputs = document.querySelectorAll('.calif-input');
         let suma = 0;
@@ -789,17 +832,23 @@
 
         inputs.forEach(input => {
             const val = input.value;
-            if (val !== "No aplica") {
+            if (val !== "No aplica" && val !== "") {
                 suma += parseFloat(val);
                 validos++;
             }
         });
 
         const promedio = validos > 0 ? (suma / validos).toFixed(2) : "0.00";
-        document.getElementById('v068_total_calificacion').innerText = promedio;
+        const contenedorTotal = document.getElementById('v068_total_calificacion');
+        if (contenedorTotal) {
+            contenedorTotal.innerText = promedio;
+        }
         return promedio;
     }
 
+    // =========================================================================
+    // 7. MULTIMEDIA (PROCESAMIENTO ASÍNCRONO EN BASE64)
+    // =========================================================================
     function procesarImagen(input, idPreview) {
         const archivo = input.files[0];
         if (archivo) {
@@ -809,7 +858,7 @@
                 document.getElementById(idPreview).style.backgroundImage = `url(${base64Str})`;
                 document.getElementById(idPreview).innerText = "";
                 cacheImagenes[input.id] = base64Str;
-            }
+            };
             lector.readAsDataURL(archivo);
         }
     }
@@ -956,12 +1005,9 @@
             }
         };
 
-        // 6. Inyección física en el almacenamiento persistente
-        const llaveClave = 'siap_folio_' + registroCompleto.folio;
-        localStorage.setItem(llaveClave, JSON.stringify(registroCompleto));
-        
-        alert(`Formulario de Inspección ${registroCompleto.folio} exportado exitosamente.`);
-        location.href = 'reportes.html?folio=' + registroCompleto.folio;
+        localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
+        alert(`Formulario de Inspección ${folioUnico} exportado exitosamente.`);
+        location.href = 'reportes.html?folio=' + folioUnico;
     }
 </script>
 </body>
