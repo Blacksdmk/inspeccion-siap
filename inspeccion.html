@@ -635,43 +635,19 @@
         </div>
     </div>
 
+
         
     
-    <div class="section">
-        <div class="section-title">Catálogo Fotográfico de Daños y Defectos (Página 9)</div>
-        <div class="photo-grid">
-            <div class="photo-card">
-                <label style="display: block; margin-bottom: 10px; font-size: 11px;">Fotografía 1: Infraestructura / Subestructura</label>
-                <div id="prev-f1" class="photo-preview">Sin archivo cargado</div>
-                <input type="file" id="f1" accept="image/*" onchange="procesarImagen(this, 'prev-f1')">
-                <div style="margin-top: 10px; text-align: left;">
-                    <label>Observación Predeterminada</label>
-                    <select id="obs-f1" style="width: 100%;">
-                        <option value="Sin daños apreciables">Sin daños apreciables / Condición Estable</option>
-                        <option value="Fisuras por esfuerzo cortante en elementos de concreto">Fisuras por esfuerzo cortante en elementos de concreto</option>
-                        <option value="Socavación severa en base de apoyo / pilas">Socavación severa en base de apoyo / pilas</option>
-                        <option value="Desprendimiento de recubrimiento con acero expuesto">Desprendimiento de recubrimiento con acero expuesto</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="photo-card">
-                <label style="display: block; margin-bottom: 10px; font-size: 11px;">Fotografía 2: Superestructura / Trabes</label>
-                <div id="prev-f2" class="photo-preview">Sin archivo cargado</div>
-                <input type="file" id="f2" accept="image/*" onchange="procesarImagen(this, 'prev-f2')">
-                <div style="margin-top: 10px; text-align: left;">
-                    <label>Observación Predeterminada</label>
-                    <select id="obs-f2" style="width: 100%;">
-                        <option value="Sin daños apreciables">Sin daños apreciables / Condición Estable</option>
-                        <option value="Deformación visible / Deflexión en trabes principales">Deformación visible / Deflexión en trabes principales</option>
-                        <option value="Corrosión avanzada en uniones de acero estructural">Corrosión avanzada en uniones de acero estructural</option>
-                        <option value="Agrietamiento longitudinal en losa de fondo">Agrietamiento longitudinal en losa de fondo</option>
-                    </select>
-                </div>
-            </div>
+   <div class="section">
+        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; padding-right: 15px;">
+            <span>10. Catálogo Fotográfico de Daños y Defectos (Cantidad Indefinida)</span>
+            <button type="button" class="btn btn-db" style="padding: 4px 10px; font-size: 11px; background: #3498db;" onclick="agregarNuevaTarjetaFoto()">➕ Añadir Nueva Foto</button>
         </div>
+        <div class="photo-grid" id="contenedor-fotos-dinamico">
+            </div>
     </div>
-</div>
+
+        
 
 <button class="btn btn-submit" onclick="guardarFormularioMaestro()">GUARDAR REGISTRO GENERAL</button>
 
@@ -691,11 +667,12 @@
 </div>
 
 <script>
-    // =========================================================================
-    // 1. VARIABLES GLOBALES Y CONTROL DE CACHÉ INTERNA
+  // =========================================================================
+    // 1. VARIABLES GLOBALES Y CONTROL DE CONFIGURACIÓN DINÁMICA
     // =========================================================================
     const folioUnico = "ICA-" + Math.floor(100000 + Math.random() * 900000);
-    let cacheImagenes = { f1: "", f2: "" };
+    // Cambiamos el objeto fijo por un array dinámico indexable
+    let listaFotosDinamicas = [];
 
     // =========================================================================
     // 2. CICLO DE VIDA DEL DOM (VINCULACIÓN DE EVENTOS SEGUROS)
@@ -710,6 +687,9 @@
         if (btnConfig) {
             btnConfig.addEventListener('click', abrirModal);
         }
+
+        // NUEVO: Inicializa el contenedor generando de inmediato la primera tarjeta
+        agregarNuevaTarjetaFoto();
     };
 
     // Cerrar ventana modal de forma segura si se hace clic fuera del recuadro
@@ -847,22 +827,78 @@
     }
 
     // =========================================================================
-    // 7. MULTIMEDIA (PROCESAMIENTO ASÍNCRONO EN BASE64)
+    // 7. MULTIMEDIA DINÁMICA INDEFINIDA (REEMPLAZA AL VIEJO MÓDULO 7 EN BASE64)
     // =========================================================================
-    function procesarImagen(input, idPreview) {
+    function agregarNuevaTarjetaFoto() {
+        const fotoId = "foto_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        const contenedor = document.getElementById('contenedor-fotos-dinamico');
+        if (!contenedor) return;
+        
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'photo-card';
+        tarjeta.id = 'card_' + fotoId;
+        tarjeta.style.position = 'relative';
+        
+        tarjeta.innerHTML = `
+            <button type="button" style="position: absolute; top: 5px; right: 5px; background: #c0392b; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-weight: bold; font-size: 11px;" onclick="eliminarTarjetaFoto('${fotoId}')">X</button>
+            <label style="display: block; margin-bottom: 10px; font-size: 11px; font-weight: bold;">Evidencia Fotográfica de Campo</label>
+            <div id="prev_${fotoId}" class="photo-preview">Sin archivo cargado</div>
+            <input type="file" accept="image/*" onchange="procesarImagenDinamica(this, '${fotoId}')">
+            <div style="margin-top: 10px; text-align: left;">
+                <label>Observación Predeterminada SIAP</label>
+                <select id="obs_${fotoId}" style="width: 100%; font-size: 11px; padding: 4px;">
+                    <option value="Sin daños apreciables / Condición Estable">Sin daños apreciables / Condición Estable</option>
+                    <option value="Hundimiento visible en accesos u apoyos">Hundimiento visible en accesos u apoyos</option>
+                    <option value="Desplome / Desalineación de elementos estructurales">Desplome / Desalineación de elementos estructurales</option>
+                    <option value="Socavación severa detectada en subestructura">Socavación severa detectada en subestructura</option>
+                    <option value="Superficie de rodamiento con baches / Deterioro regular">Superficie de rodamiento con baches / Deterioro regular</option>
+                    <option value="Carpeta asfáltica con desgaste severo / Grietas de fatiga">Carpeta asfáltica con desgaste severo / Grietas de fatiga</option>
+                    <option value="Fisuras por esfuerzo cortante en zona de apoyos (Trabes)">Fisuras por esfuerzo cortante en zona de apoyos (Trabes)</option>
+                    <option value="Grietamiento por flexión al centro del claro">Grietamiento por flexión al centro del claro</option>
+                    <option value="Agrietamiento severo en losas de calzada">Agrietamiento severo en losas de calzada</option>
+                    <option value="Juntas de expansión dañadas / Desalineadas">Juntas de expansión dañadas / Desalineadas</option>
+                    <option value="Desconchamiento estructural con acero de refuerzo expuesto">Desconchamiento estructural con acero de refuerzo expuesto</option>
+                    <option value="Agrietamiento en caballetes extremos">Agrietamiento en caballetes extremos</option>
+                    <option value="Agrietamiento en caballetes intermedios / Pilas">Agrietamiento en caballetes intermedios / Pilas</option>
+                    <option value="Desconchamiento / Fisuras en columnas de apoyo">Desconchamiento / Fisuras en columnas de apoyo</option>
+                    <option value="Ductos o cables de presfuerzo expuestos">Ductos o cables de presfuerzo expuestos</option>
+                    <option value="Corrosión avanzada en torones / Cables rotos">Corrosión avanzada en torones / Cables rotos</option>
+                </select>
+            </div>
+        `;
+        
+        contenedor.appendChild(tarjeta);
+        listaFotosDinamicas.push({ id: fotoId, base64: "" });
+    }
+
+    function eliminarTarjetaFoto(fotoId) {
+        if (listaFotosDinamicas.length <= 1) {
+            alert("Aviso: Debe mantener al menos una tarjeta fotográfica para el reporte técnico.");
+            return;
+        }
+        const elementoTarjeta = document.getElementById('card_' + fotoId);
+        if (elementoTarjeta) elementoTarjeta.remove();
+        listaFotosDinamicas = listaFotosDinamicas.filter(f => f.id !== fotoId);
+    }
+
+    function procesarImagenDinamica(input, fotoId) {
         const archivo = input.files[0];
         if (archivo) {
             const lector = new FileReader();
             lector.onload = function(e) {
                 const base64Str = e.target.result;
-                document.getElementById(idPreview).style.backgroundImage = `url(${base64Str})`;
-                document.getElementById(idPreview).innerText = "";
-                cacheImagenes[input.id] = base64Str;
+                const preview = document.getElementById('prev_' + fotoId);
+                if (preview) {
+                    preview.style.backgroundImage = `url(${base64Str})`;
+                    preview.innerText = "";
+                }
+                
+                const indice = listaFotosDinamicas.findIndex(f => f.id === fotoId);
+                if (indice !== -1) listaFotosDinamicas[indice].base64 = base64Str;
             };
             lector.readAsDataURL(archivo);
         }
     }
-
     // =========================================================================
     // 8. PERSISTENCIA INTEGRAL SEGURA (MAPPING DE MÓDULOS DEL REPORTE)
     // =========================================================================
