@@ -902,26 +902,29 @@
     // =========================================================================
     // 8. PERSISTENCIA INTEGRAL SEGURA (MAPPING DE MÓDULOS DEL REPORTE)
     // =========================================================================
-    function guardarFormularioMaestro() {
+   function guardarFormularioMaestro() {
+        // 1. Validación inicial obligatoria de existencia del ID
         const pIdElement = document.getElementById('v003');
         const pId = pIdElement ? pIdElement.value.trim() : "";
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
 
         if (!pId) {
-            alert("Error: El campo de ID de puente (v003) está vacío.");
+            alert("Error: El campo de ID de puente (v003) no se encuentra o está vacío.");
             return;
         }
 
         if (!dbLocal || !JSON.parse(dbLocal)[pId]) {
-            alert("Error: El ID ingresado no coincide con ningún puente registrado.");
+            alert("Error: Ingrese un ID de puente válido que exista en la base de datos local.");
             return;
         }
 
+        // 2. Procesamiento del promedio del módulo 8
         let promedioFinal = "4.00";
         if (typeof calcularTotalCalificacion === "function") {
             promedioFinal = calcularTotalCalificacion();
         }
 
+        // 3. Función auxiliar de recolección segura de valores del DOM
         const getVal = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : "";
@@ -1009,18 +1012,25 @@
                 subestructura: getVal('v072_recomendacion_subestructura')
             },
             
-            fotos: {
-                f1_data: cacheImagenes.f1,
-                f1_obs: getVal('obs-f1'),
-                f2_data: cacheImagenes.f2,
-                f2_obs: getVal('obs-f2')
-            }
+           // MAPEO REESTRUCTURADO SIN CACHEIMAGENES (Manejo dinámico e indefinido)
+            catalogoFotosDinamicas: (typeof listaFotosDinamicas !== 'undefined' ? listaFotosDinamicas : [])
+                .map(f => {
+                    return {
+                        data: f.base64,
+                        obs: document.getElementById('obs_' + f.id) ? document.getElementById('obs_' + f.id).value : "Sin observación predeterminada"
+                    };
+                })
+                .filter(f => f.data !== "") // Excluye del guardado las tarjetas vacías sin archivo cargado
         };
 
-        localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
-        alert(`Formulario de Inspección ${folioUnico} exportado exitosamente.`);
-        location.href = 'reportes.html?folio=' + folioUnico;
+       // 5. Inyección física en el almacenamiento persistente
+        const llaveClave = 'siap_folio_' + registroCompleto.folio;
+        localStorage.setItem(llaveClave, JSON.stringify(registroCompleto));
+        
+        alert(`Formulario de Inspección ${registroCompleto.folio} exportado exitosamente.`);
+        location.href = 'reportes.html?folio=' + registroCompleto.folio;
     }
+
 </script>
 </body>
 </html>
