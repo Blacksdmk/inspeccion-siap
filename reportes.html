@@ -2,548 +2,515 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SIAP - Visor de Reporte Técnico de Inspección</title>
+    <title>SIAP - Reporte de Inspección Técnica</title>
     <style>
+        /* CONFIGURACIÓN Y MAQUETACIÓN PARA IMPRESIÓN ASOCIADA */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
+            font-family: Arial, sans-serif;
+            background-color: #525659;
             color: #333;
-            line-height: 1.4;
             padding: 20px;
+            font-size: 11px;
         }
-        .no-print-banner {
-            background-color: #0033aa;
-            color: white;
-            padding: 15px 20px;
+        
+        /* Panel de control superior (No se imprime) */
+        #panel-control {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 15px;
         }
-        .btn {
-            background-color: #00e676;
-            color: #0033aa;
-            border: none;
-            padding: 10px 20px;
+        .btn-accion {
+            padding: 8px 15px;
+            font-size: 12px;
             font-weight: bold;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
         }
-        .btn:hover {
-            background-color: #00c853;
-            color: white;
-        }
-        .btn-back {
-            background-color: transparent;
-            color: white;
-            border: 1px solid white;
-            margin-right: 10px;
-        }
-        .btn-back:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        
-        .report-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .page {
-            background: white;
+        .btn-print { background: #27ae60; color: white; }
+        .btn-back { background: #2980b9; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 12px; font-weight: bold;}
+        select { padding: 6px; font-size: 12px; width: 250px; }
+
+        /* Contenedor del Reporte Físico (Formato Losa de Impresión A4/Carta) */
+        #reporteContenido {
             width: 100%;
-            min-height: 1120px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border-radius: 4px;
+        }
+        .page {
+            width: 215.9mm; /* Ancho Carta estándar */
+            min-height: 279.4mm; /* Alto Carta estándar */
+            padding: 15mm 12mm;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             position: relative;
             page-break-after: always;
         }
-        
-        .header-table, .data-table {
+
+        /* Cabeceras de Reporte Vial */
+        .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
-        
         .header-table td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 6px;
+            text-align: center;
             vertical-align: middle;
         }
-        
         .logo-space {
             width: 15%;
-            text-align: center;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 18px;
+            letter-spacing: 1px;
         }
-        
         .title-space {
-            width: 70%;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        
-        .meta-space {
-            width: 15%;
+            width: 55%;
             font-size: 11px;
-            text-align: left;
-        }
-        
-        .section-header {
-            background-color: #e0e0e0;
             font-weight: bold;
-            padding: 6px 10px;
-            border: 1px solid #000;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            line-height: 1.3;
         }
-        
+        .meta-space {
+            width: 30%;
+            text-align: left !important;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        /* Secciones y Bloques */
+        .section-header {
+            background: #4a5568;
+            color: #ffffff;
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            border: 1px solid #000;
+        }
         .grid-2 {
             display: table;
             width: 100%;
             table-layout: fixed;
+            margin-bottom: 10px;
         }
         .col {
             display: table-cell;
             width: 50%;
             vertical-align: top;
-            padding-right: 10px;
+            padding: 0 4px;
         }
-        .col:last-child {
-            padding-right: 0;
-            padding-left: 10px;
-        }
-        
         .field-box {
-            border: 1px solid #666;
-            margin-bottom: 8px;
-            font-size: 11px;
+            border: 1px solid #a0aec0;
+            margin-bottom: 6px;
+            background: #f7fafc;
         }
         .field-label {
-            background-color: #f5f5f5;
-            padding: 4px 6px;
+            background: #e2e8f0;
+            padding: 3px 6px;
+            font-size: 9px;
             font-weight: bold;
-            border-bottom: 1px solid #ccc;
-            color: #111;
+            color: #2d3748;
+            border-bottom: 1px solid #a0aec0;
         }
         .field-value {
-            padding: 6px;
-            min-height: 24px;
-            background-color: #fff;
-            word-break: break-all;
+            padding: 4px 6px;
+            font-size: 10px;
+            color: #000;
+            min-height: 18px;
+            word-wrap: break-word;
         }
-        
-        .comment-lines {
-            border: 1px solid #000;
-            padding: 10px;
-            min-height: 100px;
-            font-size: 11px;
-            background: repeating-linear-gradient(white, white 23px, #ccc 24px);
-            line-height: 24px;
-        }
-        
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            margin-top: 10px;
-        }
-        .matrix-table th, .matrix-table td {
-            border: 1px solid #000;
-            padding: 6px;
-        }
-        .matrix-table th {
-            background-color: #f2f2f2;
-        }
-        
+
+        /* Estructuras multimedia del catálogo */
         .photo-container {
-            border: 1px solid #999;
-            padding: 15px;
+            border: 1px solid #000;
+            padding: 6px;
+            background: #fff;
             text-align: center;
-            margin-top: 15px;
-            background-color: #fafafa;
+            margin-bottom: 10px;
         }
         .photo-box {
             width: 100%;
-            max-height: 350px;
+            height: 200px;
             object-fit: contain;
-            border: 1px dashed #ccc;
-            margin-bottom: 10px;
-            background-color: #eaeaea;
-        }
-        
-        .page-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 40px;
-            right: 40px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
+            background: #f1f2f6;
+            border: 1px solid #ccc;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        /* =========================================================================
-           REGLAS DE IMPRESIÓN ESTRICTAS (OCULTA LA WEB, DEJA SOLO EL REPORTE)
-           ========================================================================= */
+        /* Pie de página rígido para control de folios */
+        .page-footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 12mm;
+            right: 12mm;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        /* CONFIGURACIÓN EXCLUSIVA PARA IMPRESORA / PDF */
         @media print {
-            @page {
-                size: letter;
-                margin: 0mm;
+            body {
+                background: none;
+                padding: 0;
             }
-            html, body {
-                background-color: #fff !important;
-                background: #fff !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-            }
-            .no-print-banner {
-                display: none !important; /* Oculta los botones y el banner azul */
-            }
-            .report-container {
-                width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
+            #panel-control {
+                display: none; /* Oculta interfaz de control en la impresión */
             }
             .page {
-                box-shadow: none !important;
-                margin: 0 !important;
-                border: none !important;
-                border-radius: 0 !important;
-                width: 100% !important;
-                height: 100vh !important;
-                page-break-after: always !important;
-                display: block !important;
-                overflow: hidden !important;
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="no-print-banner">
+    <div id="panel-control">
         <div>
-            <h2 style="margin-bottom: 4px;">Visor de Reporte Final del Puente</h2>
-            <p style="font-size: 12px; opacity: 0.9;">Haga clic en Descargar PDF. Se guardarán únicamente las hojas del reporte técnico.</p>
+            <a href="inspeccion.html" class="btn-back">⬅️ Volver al Formulario</a>
         </div>
         <div>
-            <button class="btn btn-back" onclick="location.href='inspeccion.html'">Volver al Formulario</button>
-            <button class="btn" onclick="window.print()">Descargar / Imprimir PDF</button>
+            <label style="font-weight: bold; font-size: 13px; margin-right: 8px;">Seleccionar Inspección Realizada:</label>
+            <select id="selector-folios" onchange="cargarReportePorFolio(this.value)">
+                </select>
+        </div>
+        <div>
+            <button class="btn-accion btn-print" onclick="window.print()">🖨️ Descargar / Imprimir PDF</button>
         </div>
     </div>
 
-    <div class="report-container" id="reporteContenido">
-        </div>
+    <div id="reporteContenido"></div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let folioId = urlParams.get('folio');
+            inicializarPanelReportes();
+        });
+
+        function inicializarPanelReportes() {
+            const selector = document.getElementById('selector-folios');
+            selector.innerHTML = "";
             
-            // Fallback: Si no se pasa el parámetro, buscar el último guardado en LocalStorage
-            if (!folioId) {
-                const llaves = Object.keys(localStorage);
-                const folios = llaves.filter(k => k.includes('siap_folio_'));
-                if (folios.length > 0) {
-                    folios.sort();
-                    const ultimaLlave = folios[folios.length - 1];
-                    folioId = ultimaLlave.replace('siap_folio_', '');
+            // 1. Escaneo indexado del LocalStorage buscando prefijos del sistema SIAP
+            let encontrados = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const llave = localStorage.key(i);
+                if (llave.startsWith('siap_folio_')) {
+                    try {
+                        const datos = JSON.parse(localStorage.getItem(llave));
+                        const option = document.createElement('option');
+                        option.value = datos.folio;
+                        option.text = `Folio: ${datos.folio} - ID: ${datos.puenteId} (${datos.nombrePuente || 'Sin Nombre'})`;
+                        selector.appendChild(option);
+                        encontrados++;
+                    } catch(e) {
+                        console.error("Error al parsear clave: " + llave);
+                    }
                 }
             }
 
-            let rawData = localStorage.getItem('siap_folio_' + folioId);
-            
-            if (!rawData && folioId) {
-                rawData = localStorage.getItem(folioId);
-            }
-
-            if (!rawData) {
+            if (encontrados === 0) {
                 document.getElementById('reporteContenido').innerHTML = `
-                    <div style="background: white; padding: 40px; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top:20px;">
-                        <h3>No se localizaron los datos del reporte técnico.</h3>
-                        <p style="color: #666; margin-top: 10px;">Asegúrese de haber ingresado un ID de puente válido y presionado "Guardar".</p>
-                        <br><button class="btn" onclick="location.href='inspeccion.html'">Ir al Formulario</button>
+                    <div class="page" style="text-align:center; padding-top:100px;">
+                        <h2>No se encontraron formularios guardados en LocalStorage.</h2>
+                        <p style="margin-top:15px; font-size:13px; color:#7f8c8d;">Regresa a la pestaña de inspección y exporta un formulario para generar el reporte técnico.</p>
                     </div>`;
                 return;
             }
 
-            const data = JSON.parse(rawData);
+            // 2. Comportamiento por parámetro URL o selección del primero disponible
+            const urlParams = new URLSearchParams(window.location.search);
+            const folioUrl = urlParams.get('folio');
+            
+            if (folioUrl && localStorage.getItem('siap_folio_' + folioUrl)) {
+                selector.value = folioUrl;
+                cargarReportePorFolio(folioUrl);
+            } else {
+                cargarReportePorFolio(selector.options[0].value);
+            }
+        }
 
-            // Desestructuración segura de sub-módulos
+        function cargarReportePorFolio(folio) {
+            const rawData = localStorage.getItem('siap_folio_' + folio);
+            if (!rawData) return;
+            
+            const data = JSON.parse(rawData);
+            
+            // Atajos de asignación modular
             const cG = data.condicionGeneral || {};
             const sR = data.superficieRodamiento || {};
             const sC = data.superestructuraConcreto || {};
-            const subC = data.subestructuraConcreto || {};
-            const pA = data.puentesAcero || {};
+            const subC = data.substructureConcreto || data.subestructuraConcreto || {}; 
             const cP = data.concretoPresforzado || {};
-            const cG_global = data.calificacionGeneral || {};
+            const calif = data.calificacionGeneral || {};
             const rG = data.recomendacionesGenerales || {};
-            const fotos = data.fotos || {};
 
-            let htmlHTML = '';
+            let htmlHTML = "";
 
             // =========================================================================
-            // PÁGINA 1: DATOS GENERALES Y CONDICIÓN
+            // BLOQUE DE DATOS GENERALES (PÁGINAS 1 A 4 SINTETIZADAS)
             // =========================================================================
             htmlHTML += `
             <div class="page">
                 <table class="header-table">
                     <tr>
                         <td class="logo-space">SIAP</td>
-                        <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>REPORTE DE INSPECCIÓN TÉCNICA</td>
+                        <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>REPORTE DE INSPECCIÓN TÉCNICA CONSOLIDADO</td>
                         <td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}<br><b>FECHA:</b> ${data.fecha || 'N/A'}</td>
                     </tr>
                 </table>
-
-                <div class="section-header">1. Datos Generales</div>
+                
+                <div class="section-header">1. Identificación del Elemento Estructural</div>
                 <div class="grid-2">
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(003) NÚMERO DE PUENTE / CADENAMIENTO</div><div class="field-value">${data.puenteId || 'No registrado'}</div></div>
-                        <div class="field-box"><div class="field-label">(002) NOMBRE DEL PUENTE</div><div class="field-value">${data.nombrePuente || 'No registrado'}</div></div>
+                        <div class="field-box"><div class="field-label">ID DEL PUENTE (v003)</div><div class="field-value"><b>${data.puenteId || 'N/A'}</b></div></div>
+                        <div class="field-box"><div class="field-label">NOMBRE DEL PUENTE (v002)</div><div class="field-value">${data.nombrePuente || 'No especificado'}</div></div>
                     </div>
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(004) ESTADO</div><div class="field-value">VERACRUZ</div></div>
-                        <div class="field-box"><div class="field-label">(005) MUNICIPIO / LOCALIDAD</div><div class="field-value">CENTRO-SUR</div></div>
+                        <div class="field-box"><div class="field-label">FECHA DE INSPECCIÓN</div><div class="field-value">${data.fecha || 'N/A'}</div></div>
+                        <div class="field-box"><div class="field-label">ESTATUS DE REVISIÓN</div><div class="field-value">${data.aprobado ? '✔️ APROBADO / VALIDADO' : '⏳ PENDIENTE DE REVISIÓN'}</div></div>
                     </div>
                 </div>
 
                 <div class="section-header">2. Condición General del Puente</div>
                 <div class="grid-2">
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(004) HUNDIMIENTO</div><div class="field-value">${cG.hundimiento || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(005) DESPLOME</div><div class="field-value">${cG.desplome || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(006) SOCAVACIÓN</div><div class="field-value">${cG.socavacion || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(007) FLECHAS</div><div class="field-value">${cG.flechas || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(004) HUNDIMIENTO</div><div class="field-value">${cG.hundimiento || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(005) DESPLOME</div><div class="field-value">${cG.desplome || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(006) SOCAVACIÓN</div><div class="field-value">${cG.socavacion || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(007) FLECHAS</div><div class="field-value">${cG.flechas || '5.- No aplica'}</div></div>
                     </div>
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(008) CORROSIÓN</div><div class="field-value">${cG.corrosion || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(009) OTRO (Especificar)</div><div class="field-value">${cG.otro || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(010) CAUCE DEL RÍO</div><div class="field-value">${cG.cauceRio || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(008) CORROSIÓN</div><div class="field-value">${cG.corrosion || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(010) CAUCE DE RÍO</div><div class="field-value">${cG.cauceRio || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(011) INDICACIÓN DE GÁLIBOS</div><div class="field-value">${cG.indicaGalibos || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(012) SEÑALIZACIÓN DE SEGURIDAD</div><div class="field-value">${cG.senalizacionSeguridad || '5.- No aplica'}</div></div>
                     </div>
                 </div>
+                <div class="field-box" style="margin-top:-4px;"><div class="field-label">(013) COMENTARIOS ADICIONALES</div><div class="field-value">${cG.comentarios || 'Sin comentarios registrados.'}</div></div>
 
-                <div class="grid-2" style="margin-top: 10px;">
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(011) SEÑALAMIENTO QUE INDIQUE GÁLIBOS</div><div class="field-value">${cG.indicaGalibos || '------'}</div></div>
-                    </div>
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(012) SEÑALAMIENTO DE SEGURIDAD</div><div class="field-value">${cG.senalizacionSeguridad || '------'}</div></div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 15px;">
-                    <div class="field-label" style="border: 1px solid #000; border-bottom:none;">(013) COMENTARIOS GENERALES DE CONDICIÓN</div>
-                    <div class="comment-lines">${cG.comentarios || 'Sin observaciones registradas de campo.'}</div>
-                </div>
-
-                <div class="page-footer"><span>SIAP - INSPECCIÓN DE ESTRUCTURAS</span><span>PÁGINA 1 DE 5</span></div>
-            </div>`;
-
-            // =========================================================================
-            // PÁGINA 2: RODAMIENTO Y SUPERESTRUCTURA DE CONCRETO
-            // =========================================================================
-            htmlHTML += `
-            <div class="page">
                 <div class="section-header">3. Superficie de Rodamiento</div>
                 <div class="grid-2">
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(014) CONDICIÓN</div><div class="field-value">${sR.condicion || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(014) CONDICIÓN GENERAL</div><div class="field-value">${sR.condicion || '5.- No aplica'}</div></div>
                     </div>
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(015) ESPESOR DE LA CARPETA ACTUAL (cm)</div><div class="field-value">${sR.espesorCarpeta || '0'} cm</div></div>
+                        <div class="field-box"><div class="field-label">(015) ESPESOR DE CARPETA (cm)</div><div class="field-value">${sR.espesorCarpeta || '---'}</div></div>
                     </div>
                 </div>
-                <div style="margin-top: 5px; margin-bottom: 20px;">
-                    <div class="field-label" style="border: 1px solid #000; border-bottom:none;">(016) COMENTARIOS (SUPERFICIE DE RODAMIENTO)</div>
-                    <div class="field-value" style="border: 1px solid #000; min-height: 45px;">${sR.comentarios || 'Sin comentarios.'}</div>
-                </div>
+                <div class="field-box" style="margin-top:-4px;"><div class="field-label">(016) COMENTARIOS</div><div class="field-value">${sR.comentarios || 'Sin comentarios.'}</div></div>
+
+                <div class="page-footer"><span>SIAP - REPORTE DE INFRAESTRUCTURA</span><span>PÁGINA 1</span></div>
+            </div>`;
+
+            // =========================================================================
+            // SEGUNDA HOJA DE DATOS TÉCNICOS ESPECÍFICOS
+            // =========================================================================
+            htmlHTML += `
+            <div class="page">
+                <table class="header-table">
+                    <tr>
+                        <td class="logo-space">SIAP</td>
+                        <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>REPORTE DE INSPECCIÓN TÉCNICA CONSOLIDADO</td>
+                        <td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}<br><b>ID:</b> ${data.puenteId || 'N/A'}</td>
+                    </tr>
+                </table>
 
                 <div class="section-header">4. Superestructura de Concreto</div>
                 <div class="grid-2">
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(017) AGRIETAMIENTO EN APOYOS</div><div class="field-value">${sC.agrietamientoApoyos || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(018) AGRIETAMIENTO EN CLARO</div><div class="field-value">${sC.agrietamientoClaro || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(019) AGRIETAMIENTO EN LOSAS</div><div class="field-value">${sC.agrietamientoLosas || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(020) AGRIETAMIENTO EN DIAFRAGMAS</div><div class="field-value">${sC.agrietamientoDiafragmas || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(021) JUNTAS DE EXPANSIÓN</div><div class="field-value">${sC.juntasExpansion || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(017) AGRIETAMIENTO EN ZONA DE APOYOS</div><div class="field-value">${sC.agrietamientoApoyos || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(018) AGRIETAMIENTO EN EL CLARO</div><div class="field-value">${sC.agrietamientoClaro || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(019) AGRIETAMIENTO EN LOSAS</div><div class="field-value">${sC.agrietamientoLosas || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(021) JUNTAS DE EXPANSIÓN</div><div class="field-value">${sC.juntasExpansion || '5.- No aplica'}</div></div>
                     </div>
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(022) DISPOSITIVOS DE APOYO</div><div class="field-value">${sC.dispositivosApoyo || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(023) IMPACTO POR GÁLIBO</div><div class="field-value">${sC.impactoGalibo || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(024) IMPACTO GENERAL</div><div class="field-value">${sC.impactoGeneral || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(025) DRENAJE</div><div class="field-value">${sC.drenaje || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(022) DISPOSITIVOS DE APOYO</div><div class="field-value">${sC.dispositivosApoyo || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(023) IMPACTO DE GÁLIBO</div><div class="field-value">${sC.impactoGalibo || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(025) DRENAJE</div><div class="field-value">${sC.drenaje || '5.- No aplica'}</div></div>
+                        <div class="field-box"><div class="field-label">(026) DESCONCHAMIENTO STRUCTURAL</div><div class="field-value">${sC.desconchamiento || '5.- No aplica'}</div></div>
                     </div>
                 </div>
 
-                <div class="field-box" style="margin-top: 10px;">
-                    <div class="field-label">(026) DESCONCHAMIENTO EN SUPERESTRUCTURA DE CONCRETO</div>
-                    <div class="field-value">${sC.desconchamiento || '------'}</div>
-                </div>
-                
-                <div class="grid-2">
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(027) UBICACIÓN DEL DESCONCHAMIENTO</div><div class="field-value">${sC.ubicacionDesconchamiento || 'N/A'}</div></div>
-                    </div>
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(028) DIMENSIÓN DEL DESCONCHAMIENTO</div><div class="field-value">${sC.dimensionDesconchamiento || 'N/A'}</div></div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 10px;">
-                    <div class="field-label" style="border: 1px solid #000; border-bottom:none;">(029) COMENTARIOS (SUPERESTRUCTURA)</div>
-                    <div class="comment-lines">${sC.comentarios || 'Sin novedades críticas.'}</div>
-                </div>
-
-                <div class="page-footer"><span>SIAP - INSPECCIÓN DE ESTRUCTURAS</span><span>PÁGINA 2 DE 5</span></div>
-            </div>`;
-
-            // =========================================================================
-            // PÁGINA 3: SUBESTRUCTURA Y MATRIZ DE ACERO (NO APLICA)
-            // =========================================================================
-            htmlHTML += `
-            <div class="page">
                 <div class="section-header">5. Subestructura de Concreto</div>
                 <div class="grid-2">
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(030) AGRIETAMIENTO EN CABALLETES EXTREMOS</div><div class="field-value">${subC.agrietamientoCaballetesExtremos || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(031) AGRIETAMIENTO EN CABALLETES INTERMEDIOS</div><div class="field-value">${subC.agrietamientoCaballetesIntermedios || '------'}</div></div>
+                        <div class="field-box"><div class="field-label">(030) AGRIETAMIENTO EN CABALLETES EXTREMOS</div><div class="field-value">${subC.agrietamientoCaballetesExtremos || '5.- No aplica'}</div></div>
                     </div>
                     <div class="col">
-                        <div class="field-box"><div class="field-label">(032) DESCONCHAMIENTO EN PILAS O CABALLETES</div><div class="field-value">${subC.desconchamientoPilasCaballetes || '------'}</div></div>
-                        <div class="field-box"><div class="field-label">(029-S) COMENTARIOS (SUBESTRUCTURA)</div><div class="field-value">${subC.comentarios || 'Ninguno.'}</div></div>
+                        <div class="field-box"><div class="field-label">(031) AGRIETAMIENTO EN CABALLETES INTERMEDIOS / PILAS</div><div class="field-value">${subC.agrietamientoCaballetesIntermedios || '5.- No aplica'}</div></div>
                     </div>
                 </div>
 
-                <div class="section-header">6. Puentes de Acero (NO APLICA)</div>
-                <table class="matrix-table">
-                    <thead>
-                        <tr>
-                            <th>CONCEPTO EVALUADO</th>
-                            <th>SUPERESTRUCTURA</th>
-                            <th>SUBESTRUCTURA</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>PINTURA ANTICORROSIVA</td><td>${pA.supPinturaAnticorrosiva || '5.- No aplica'}</td><td>${pA.subPinturaAnticorrosiva || '5.- No aplica'}</td></tr>
-                        <tr><td>CORROSIÓN</td><td>${pA.supCorrosion || '5.- No aplica'}</td><td>${pA.subCorrosion || '5.- No aplica'}</td></tr>
-                        <tr><td>ELEMENTOS ROTOS</td><td>${pA.supElementosRotos || 'NO'}</td><td>${pA.subElementosRotos || 'NO'}</td></tr>
-                        <tr><td>ELEMENTOS FALTANTES</td><td>${pA.supElementosFaltantes || 'NO'}</td><td>${pA.subElementosFaltantes || 'NO'}</td></tr>
-                        <tr><td>ELEMENTOS DEFORMADOS</td><td>${pA.supElementosDeformados || 'NO'}</td><td>${pA.subElementosDeformados || 'NO'}</td></tr>
-                        <tr><td>DAÑO EN SOLDADURAS</td><td>${pA.supDanoSoldaduras || '5.- No aplica'}</td><td>${pA.subDanoSoldaduras || '5.- No aplica'}</td></tr>
-                        <tr><td>DAÑO EN PERNOS O REMACHES</td><td>${pA.supDanoPernosRemaches || '5.- No aplica'}</td><td>${pA.subDanoPernosRemaches || '5.- No aplica'}</td></tr>
-                    </tbody>
-                </table>
-
-                <div class="page-footer"><span>SIAP - INSPECCIÓN DE ESTRUCTURAS</span><span>PÁGINA 3 DE 5</span></div>
-            </div>`;
-
-            // =========================================================================
-            // PÁGINA 4: CONCRETO PRESFORZADO Y CALIFICACIÓN GLOBAL
-            // =========================================================================
-            htmlHTML += `
-            <div class="page">
                 <div class="section-header">7. Puentes de Concreto Presforzado</div>
-                <table class="matrix-table" style="margin-bottom: 20px;">
-                    <thead>
+                <div class="grid-2">
+                    <div class="col">
+                        <div class="field-box"><div class="field-label">(050) DUCTOS O CABLES EXPUESTOS</div><div class="field-value">${cP.supDuctosCables || 'NO'}</div></div>
+                        <div class="field-box"><div class="field-label">(052) CABLES ROTOS</div><div class="field-value">${cP.supCablesRotos || 'NO'}</div></div>
+                    </div>
+                    <div class="col">
+                        <div class="field-box"><div class="field-label">(054) CORROSIÓN EN CABLES</div><div class="field-value">${cP.supCorrosionCables || 'NO'}</div></div>
+                        <div class="field-box"><div class="field-label">(055) COMENTARIO GENERAL</div><div class="field-value">${cP.supComentarioGeneral || 'Sin novedad.'}</div></div>
+                    </div>
+                </div>
+
+                <div class="section-header">8. Calificación General e Índice de Daño</div>
+                <div class="grid-2">
+                    <div class="col">
+                        <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">SOCAVACIÓN</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.socavacion || '4'}</b></td></tr>
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">CIMENTACIÓN</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.cimentacion || '4'}</b></td></tr>
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">APOYOS</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.apoyos || '4'}</b></td></tr>
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">PILAS / CABALLETES</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.pilas || '4'}</b></td></tr>
+                        </table>
+                    </div>
+                    <div class="col">
+                        <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">SISTEMA DE PISO</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.sistemaPiso || '4'}</b></td></tr>
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">VIGAS / DIAFRAGMAS</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.vigasDiafragmas || '4'}</b></td></tr>
+                            <tr><td style="padding:4px; border:1px solid #cbd5e0; background:#edf2f7;">DISPOSITIVOS DE EXP.</td><td style="padding:4px; border:1px solid #cbd5e0; text-align:center;"><b>${calif.dispositivosApoyo || '4'}</b></td></tr>
+                            <tr style="background:#e2e8f0; font-weight:bold;"><td style="padding:4px; border:1px solid #000;">PROMEDIO GENERAL ÍNDICE</td><td style="padding:4px; border:1px solid #000; text-align:center; font-size:12px; color:#c0392b;">${calif.totalCalculado || '4.00'}</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-header">9. Recomendaciones Generales de Intervención</div>
+                <div class="grid-2">
+                    <div class="col">
+                        <div class="field-box"><div class="field-label">(069) RECOMENDACIÓN DE INSPECCIONES</div><div class="field-value">${rG.inspecciones || 'Ninguna'}</div></div>
+                        <div class="field-box"><div class="field-label">(071) ACCIONES EN SUPERESTRUCTURA</div><div class="field-value">${rG.superestructura || 'Ninguna'}</div></div>
+                    </div>
+                    <div class="col">
+                        <div class="field-box"><div class="field-label">(070) ACCIONES EN RODAMIENTO</div><div class="field-value">${rG.superficieRodamiento || 'Ninguna'}</div></div>
+                        <div class="field-box"><div class="field-label">(072) ACCIONES EN SUBESTRUCTURA</div><div class="field-value">${rG.subestructura || 'Ninguna'}</div></div>
+                    </div>
+                </div>
+
+                <div class="page-footer"><span>SIAP - REPORTE DE INFRAESTRUCTURA</span><span>PÁGINA 2</span></div>
+            </div>`;
+
+            // =========================================================================
+            // GENERADOR DE HOJAS FOTOGRÁFICAS DINÁMICAS (MÁXIMO 6 POR HOJA, DE 2 EN 2)
+            // =========================================================================
+            const listaFotos = data.catalogoFotosDinamicas || [];
+            
+            if (listaFotos.length === 0) {
+                htmlHTML += `
+                <div class="page">
+                    <table class="header-table">
                         <tr>
-                            <th>EVALUACIÓN DE DAÑOS ESPECÍFICOS</th>
-                            <th>SUPERESTRUCTURA</th>
-                            <th>SUBESTRUCTURA (No Aplica)</th>
+                            <td class="logo-space">SIAP</td>
+                            <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>CATÁLOGO FOTOGRÁFICO DE CAMPO</td>
+                            <td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>(050 / 056) DUCTOS O CABLES EXPUESTOS</td><td><b>${cP.supDuctosCables || 'NO'}</b></td><td>NO</td></tr>
-                        <tr><td>(051 / 057) ANCLAJES DE PRESFUERZO SUELTOS</td><td><b>${cP.supAnclajesSueltos || 'NO'}</b></td><td>NO</td></tr>
-                        <tr><td>(052 / 058) CABLES ROTOS</td><td><b>${cP.supCablesRotos || 'NO'}</b></td><td>NO</td></tr>
-                        <tr><td>(053 / 059) VAINAS O FUNDAS ROTAS</td><td><b>${cP.supVainasRotas || 'NO'}</b></td><td>NO</td></tr>
-                        <tr><td>(054 / 060) CORROSIÓN EN CABLES</td><td><b>${cP.supCorrosionCables || 'NO'}</b></td><td>NO</td></tr>
-                    </tbody>
-                </table>
+                    </table>
+                    <div class="section-header">10. Catálogo Fotográfico de Daños y Defectos</div>
+                    <p style="text-align:center; margin-top:100px; font-style:italic; color:#7f8c8d; font-size:13px;">No se anexó evidencia fotográfica en esta inspección estructural.</p>
+                    <div class="page-footer"><span>SIAP - CATALOGO FOTOGRÁFICO</span><span>PÁGINA 3</span></div>
+                </div>`;
+            } else {
+                const maxFotosPorHoja = 6;
+                let fotosEnHojaActual = 0;
+                let numeroPaginaFotografica = 3; // Inicia inmediatamente en la Página 3
 
-                <div class="section-header">8. Calificación General del Puente</div>
-                <table class="matrix-table">
-                    <thead>
-                        <tr style="background-color: #f5f5f5;">
-                            <th>ELEMENTO EVALUADO</th>
-                            <th style="text-align: center; width: 30%;">CALIFICACIÓN</th>
+                // Abrir la primera hoja del catálogo fotográfico
+                htmlHTML += `
+                <div class="page">
+                    <table class="header-table">
+                        <tr>
+                            <td class="logo-space">SIAP</td>
+                            <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>CATÁLOGO FOTOGRÁFICO DE CAMPO</td>
+                            <td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}<br><b>HOJA FOTOG.</b></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>(062) SOCAVACIÓN</td><td style="text-align: center;">${cG_global.socavacion || '4'}</td></tr>
-                        <tr><td>(063) CIMENTACIÓN</td><td style="text-align: center;">${cG_global.cimentacion || '4'}</td></tr>
-                        <tr><td>(064) APOYOS</td><td style="text-align: center;">${cG_global.apoyos || '4'}</td></tr>
-                        <tr><td>(065) PILAS</td><td style="text-align: center;">${cG_global.pilas || '4'}</td></tr>
-                        <tr><td>(066) SISTEMA DE PISO (LOSAS)</td><td style="text-align: center;">${cG_global.sistemaPiso || '4'}</td></tr>
-                        <tr><td>(067) VIGAS Y DIAFRAGMAS</td><td style="text-align: center;">${cG_global.vigasDiafragmas || '4'}</td></tr>
-                        <tr><td>(068) DISPOSITIVOS DE APOYO</td><td style="text-align: center;">${cG_global.dispositivosApoyo || '4'}</td></tr>
-                        <tr style="font-weight: bold; font-size:13px; background-color: #e0f7fa;">
-                            <td style="text-align: right; padding: 10px;">PROMEDIO GLOBAL CALIFICACIÓN:</td>
-                            <td style="text-align: center; color: #0033aa; padding: 10px;">TOTAL = ${cG_global.totalCalculado || '4.00'}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                    </table>
+                    <div class="section-header">10. Catálogo Fotográfico de Daños y Defectos</div>
+                    <div style="display: block; width: 100%;">`;
 
-                <div class="page-footer"><span>SIAP - INSPECCIÓN DE ESTRUCTURAS</span><span>PÁGINA 4 DE 5</span></div>
-            </div>`;
-
-            // =========================================================================
-            // PÁGINA 5: RECOMENDACIONES Y CATÁLOGO FOTOGRÁFICO
-            // =========================================================================
-            htmlHTML += `
-            <div class="page">
-                <div class="section-header">9. Recomendaciones Generales</div>
-                <div class="grid-2">
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(069) INSPECCIONES</div><div class="field-value">${rG.inspecciones || 'No especificado'}</div></div>
-                        <div class="field-box"><div class="field-label">(071) SUPERESTRUCTURA</div><div class="field-value">${rG.superestructura || 'No especificado'}</div></div>
-                    </div>
-                    <div class="col">
-                        <div class="field-box"><div class="field-label">(070) SUPERFICIE DE RODAMIENTO</div><div class="field-value">${rG.superficieRodamiento || 'No especificado'}</div></div>
-                        <div class="field-box"><div class="field-label">(072) SUBESTRUCTURA</div><div class="field-value">${rG.subestructura || 'No especificado'}</div></div>
-                    </div>
-                </div>
-
-                <div class="section-header">10. Catálogo Fotográfico de Campo</div>
-                <div class="grid-2">
-                    <div class="col">
-                        <div class="photo-container">
-                            <div style="font-weight:bold; font-size:11px; margin-bottom:5px;">REGISTRO FOTOGRÁFICO 1</div>
-                            <img class="photo-box" src="${fotos.f1_data || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'%23ccc\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\'>Sin Foto</svg>'}" alt="Foto 1">
-                            <div class="field-value" style="border:1px solid #ccc; font-size:10px; background:#fff; text-align:left;"><b>Obs:</b> ${fotos.f1_obs || 'Sin observaciones.'}</div>
+                for (let i = 0; i < listaFotos.length; i += 2) {
+                    // Si la hoja ya tiene 6 imágenes, se cierra y abre otra para evitar desbordes físicos en el PDF
+                    if (fotosEnHojaActual >= maxFotosPorHoja) {
+                        htmlHTML += `
+                            </div>
+                            <div class="page-footer"><span>SIAP - CATALOGO FOTOGRÁFICO</span><span>PÁGINA ${numeroPaginaFotografica}</span></div>
                         </div>
-                    </div>
-                    <div class="col">
-                        <div class="photo-container">
-                            <div style="font-weight:bold; font-size:11px; margin-bottom:5px;">REGISTRO FOTOGRÁFICO 2</div>
-                            <img class="photo-box" src="${fotos.f2_data || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'%23ccc\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\'>Sin Foto</svg>'}" alt="Foto 2">
-                            <div class="field-value" style="border:1px solid #ccc; font-size:10px; background:#fff; text-align:left;"><b>Obs:</b> ${fotos.f2_obs || 'Sin observaciones.'}</div>
-                        </div>
-                    </div>
-                </div>
+                        <div class="page">
+                            <table class="header-table">
+                                <tr>
+                                    <td class="logo-space">SIAP</td>
+                                    <td class="title-space">SISTEMA DE INVENTARIO DE LA INFRAESTRUCTURA VIAL<br>CATÁLOGO FOTOGRÁFICO DE CAMPO (CONTINUACIÓN)</td>
+                                    <td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}<br><b>ID:</b> ${data.puenteId || 'N/A'}</td>
+                                </tr>
+                            </table>
+                            <div class="section-header">10. Catálogo Fotográfico de Campo (Continuación)</div>
+                            <div style="display: block; width: 100%;">`;
+                        
+                        fotosEnHojaActual = 0;
+                        numeroPaginaFotografica++;
+                    }
 
-                <div class="page-footer"><span>SIAP - INSPECCIÓN DE ESTRUCTURAS</span><span>PÁGINA 5 DE 5</span></div>
-            </div>`;
+                    // Creación de una fila simétrica (Grid-2 con celdas de tabla para asegurar soporte multiplataforma)
+                    const fotoIzquierda = listaFotos[i];
+                    const fotoDerecha = listaFotos[i + 1]; 
 
+                    htmlHTML += `<div class="grid-2">`;
+                    
+                    // Columna con Foto Izquierda
+                    if (fotoIzquierda && fotoIzquierda.data) {
+                        htmlHTML += `
+                            <div class="col">
+                                <div class="photo-container">
+                                    <img class="photo-box" src="${fotoIzquierda.data}" alt="Evidencia">
+                                    <div class="field-value" style="border:1px solid #a0aec0; background:#f7fafc; text-align:left; min-height:38px; padding:4px;"><b>Obs:</b> ${fotoIzquierda.obs}</div>
+                                </div>
+                            </div>`;
+                    }
+                    fotosEnHojaActual++;
+
+                    // Columna con Foto Derecha (Mantiene simetría espacial si el total es impar)
+                    if (fotoDerecha && fotoDerecha.data) {
+                        htmlHTML += `
+                            <div class="col">
+                                <div class="photo-container">
+                                    <img class="photo-box" src="${fotoDerecha.data}" alt="Evidencia">
+                                    <div class="field-value" style="border:1px solid #a0aec0; background:#f7fafc; text-align:left; min-height:38px; padding:4px;"><b>Obs:</b> ${fotoDerecha.obs}</div>
+                                </div>
+                            </div>`;
+                    } else {
+                        htmlHTML += `<div class="col"></div>`; // Celda fantasma equilibrante
+                    }
+                    fotosEnHojaActual++;
+
+                    htmlHTML += `</div>`; // Cierre de fila grid-2
+                }
+
+                // Cierre de la última hoja abierta
+                htmlHTML += `
+                    </div>
+                    <div class="page-footer"><span>SIAP - CATALOGO FOTOGRÁFICO</span><span>PÁGINA ${numeroPaginaFotografica}</span></div>
+                </div>`;
+            }
+
+            // 3. Renderizado en el árbol DOM del navegador
             document.getElementById('reporteContenido').innerHTML = htmlHTML;
-        });
+        }
     </script>
 </body>
 </html>
