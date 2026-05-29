@@ -57,33 +57,19 @@
     </div>
 
     <div class="section">
-        <div class="section-title">1. Identificación y Ubicación del Activo</div>
-        <div class="row">
-            <div class="field" style="background: #edf2f7;">
-                <label>(003) NÚMERO DE PUENTE / CADENAMIENTO</label>
-                <input type="text" id="v003" placeholder="Ej: 1 o 125" oninput="autocompletarCamposPuente(this.value)">
-            </div>
-            <div class="field">
-                <label>Fecha de Inspección</label>
-                <input type="text" id="txt-fecha" readonly>
-            </div>
-        </div>
-
-        
-<div class="section-header" style="background:#2c3e50; display:flex; justify-content:space-between; align-items:center;">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
             <span>1. Identificación y Ubicación del Activo</span>
             <div style="padding-right:10px;">
-                <label style="color:#fff; margin-right:5px; font-size:11px;">CONCESIÓN / PROYECTO MAESTRO:</label>
-               <select id="selector-proyecto-maestro" style="padding:3px; font-size:12px; font-weight:bold; color:#0033aa;" onchange="cambiarProyecto(this.value)">
-    <option value="LIPSA">LIPSA (Ica La Piedad)</option>
-    <option value="QUERÉTARO">QUERÉTARO / PALMILLAS</option>
-    <option value="RÍO VERDE">RÍO VERDE</option>
-    <option value="MAYAB TRONCAL">MAYAB - TRONCAL</option>
-    <option value="MAYAB RAMAL">MAYAB - RAMAL</option>
-    <option value="MAXITÚNEL">MAXITÚNEL ACAPULCO</option>
-    <option value="SALAMANCA">SALAMANCA-LEÓN</option>
-</select>
-                
+                <label style="color:#fff; margin-right:5px; font-size:11px;">PROYECTO MAESTRO:</label>
+                <select id="selector-proyecto-maestro" style="padding:3px; font-size:12px; font-weight:bold; color:#0033aa;" onchange="cambiarProyecto(this.value)">
+                    <option value="LIPSA">LIPSA (Ica La Piedad)</option>
+                    <option value="QUERÉTARO">QUERÉTARO / PALMILLAS</option>
+                    <option value="RÍO VERDE">RÍO VERDE</option>
+                    <option value="MAYAB TRONCAL">MAYAB - TRONCAL</option>
+                    <option value="MAYAB RAMAL">MAYAB - RAMAL</option>
+                    <option value="MAXITÚNEL">MAXITÚNEL ACAPULCO</option>
+                    <option value="SALAMANCA">SALAMANCA-LEÓN</option>
+                </select>
             </div>
         </div>
 
@@ -677,8 +663,8 @@
     <div class="modal-content">
         <h3 style="margin-top:0; color:#1a252f;">Cargar Inventario Maestro desde Excel</h3>
         <p style="font-size:0.85em; color:#555; line-height:1.4;">
-            Copie las filas de su Excel (**sin incluir títulos**) que contengan exactamente estas 4 columnas ordenadas: <br>
-            <strong style="color:#2980b9;">[ID] [Nombre del Puente] [Estado] [Municipio / Localidad]</strong>
+            Copie las filas de su Excel (**sin incluir títulos**) que contengan exactamente estas 5 columnas ordenadas: <br>
+            <strong style="color:#2980b9;">[Proyecto] [ID] [Nombre del Puente] [Estado] [Municipio / Localidad]</strong>
         </p>
         <textarea id="excel_paste" placeholder="Pegue el contenido aquí (Ctrl+V)..." style="width:100%; height:150px; font-family:monospace; font-size:11px; padding:6px; box-sizing:border-box; border:1px solid #bdc3c7; border-radius:4px; resize:none;"></textarea>
         <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
@@ -696,10 +682,6 @@
     let folioUnico = "";
     let listaFotosDinamicas = [];
 
-    // Diccionario técnico para automatizar prefijos y nombres oficiales
-   // =========================================================================
-    // 1. DICCIONARIO ACTUALIZADO CON SUBDIVISIONES DE MAYAB
-    // =========================================================================
     const CONFIG_PROYECTOS = {
         "LIPSA": { prefijo: "LIPSA", nombre: "LIBRAMIENTO ICA LA PIEDAD (LIPSA)" },
         "PALMILLAS": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
@@ -708,38 +690,15 @@
         "RÍO VERDE": { prefijo: "RIVE", nombre: "AUTOPISTA RÍO VERDE - CIUDAD VALLES" },
         "MAYAB TRONCAL": { prefijo: "MAY-T", nombre: "AUTOPISTA DEL MAYAB - TRONCAL" },
         "MAYAB RAMAL": { prefijo: "MAY-R", nombre: "AUTOPISTA DEL MAYAB - RAMAL" },
-        "MAXITÚNEL": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
-        "ACAPULCO": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
+        "MAXITÚNEL": { prefijo: "MAXI", font: "MAXITÚNEL ACAPULCO", nombre: "MAXITÚNEL ACAPULCO" },
         "SALAMANCA": { prefijo: "SALE", nombre: "AUTOPISTA SALAMANCA - LEÓN" }
     };
-
-    // Actualización del normalizador dentro de la función procesarYGuardarExcel()
-    // Reemplaza el bloque de ifs de normalización de proyectos por este:
-    let proyectoRaw = columnas[0].trim().toUpperCase();
-    if (proyectoRaw.includes("LIPSA")) proyectoRaw = "LIPSA";
-    if (proyectoRaw.includes("PALMILLAS") || proyectoRaw.includes("QUERETARO") || proyectoRaw.includes("QUERÉTARO")) proyectoRaw = "QUERÉTARO";
-    if (proyectoRaw.includes("RIOVERDE") || proyectoRaw.includes("RÍO VERDE") || proyectoRaw.includes("RIO VERDE")) proyectoRaw = "RÍO VERDE";
-    if (proyectoRaw.includes("MAXITUNEL") || proyectoRaw.includes("MAXITÚNEL") || proyectoRaw.includes("ACAPULCO")) proyectoRaw = "MAXITÚNEL";
-    if (proyectoRaw.includes("SALAMANCA")) proyectoRaw = "SALAMANCA";
-    
-    // Tratamiento analítico específico para subdivisiones del Mayab
-    if (proyectoRaw.includes("MAYAB")) {
-        if (proyectoRaw.includes("TRONCAL")) {
-            proyectoRaw = "MAYAB TRONCAL";
-        } else if (proyectoRaw.includes("RAMAL")) {
-            proyectoRaw = "MAYAB RAMAL";
-        } else {
-            proyectoRaw = "MAYAB TRONCAL"; // Por omisión asigna Troncal
-        }
-    }
 
     window.onload = function() {
         verificarEstatusBaseDatos();
         cambiarProyecto(document.getElementById('selector-proyecto-maestro').value);
-        agregarNuevaTarjetaFoto();
     };
 
-    // Generador síncrono de folios con prefijo dinámico
     function generarFolioProyecto(codigo) {
         const conf = CONFIG_PROYECTOS[codigo.toUpperCase()] || { prefijo: "SIAP" };
         folioUnico = conf.prefijo + "-" + Math.floor(100000 + Math.random() * 900000);
@@ -747,18 +706,20 @@
         document.getElementById('txt-fecha').value = new Date().toLocaleDateString('es-MX');
     }
 
-    // Evento disparado al cambiar el proyecto en la interfaz
     function cambiarProyecto(proyecto) {
         proyectoSeleccionado = proyecto;
         generarFolioProyecto(proyecto);
         
-        // Cambiar membrete de texto dinámicamente en el encabezado
         const conf = CONFIG_PROYECTOS[proyecto.toUpperCase()] || { nombre: "SISTEMA GENERAL" };
         document.getElementById('lbl-proyecto-header').innerText = conf.nombre;
         
-        // Forzar limpieza de campos de autocompletado al cambiar de proyecto
         document.getElementById('v003').value = "";
-        autocompletarCamposPuente("");
+        limpiarCampos();
+        
+        // Inicializar con una foto limpia para el catálogo dinámico
+        document.getElementById('contenedor-fotos-dinamico').innerHTML = "";
+        listaFotosDinamicas = [];
+        agregarNuevaTarjetaFoto();
     }
 
     // =========================================================================
@@ -794,13 +755,20 @@
 
             if (columnas.length >= 5) {
                 let proyectoRaw = columnas[0].trim().toUpperCase();
-                // Normalización de llaves de proyectos
+                
                 if (proyectoRaw.includes("LIPSA")) proyectoRaw = "LIPSA";
                 if (proyectoRaw.includes("PALMILLAS") || proyectoRaw.includes("QUERETARO") || proyectoRaw.includes("QUERÉTARO")) proyectoRaw = "QUERÉTARO";
                 if (proyectoRaw.includes("RIOVERDE") || proyectoRaw.includes("RÍO VERDE") || proyectoRaw.includes("RIO VERDE")) proyectoRaw = "RÍO VERDE";
-                if (proyectoRaw.includes("MAYAB")) proyectoRaw = "MAYAB";
                 if (proyectoRaw.includes("MAXITUNEL") || proyectoRaw.includes("MAXITÚNEL") || proyectoRaw.includes("ACAPULCO")) proyectoRaw = "MAXITÚNEL";
                 if (proyectoRaw.includes("SALAMANCA")) proyectoRaw = "SALAMANCA";
+                
+                if (proyectoRaw.includes("MAYAB")) {
+                    if (proyectoRaw.includes("RAMAL")) {
+                        proyectoRaw = "MAYAB RAMAL";
+                    } else {
+                        proyectoRaw = "MAYAB TRONCAL";
+                    }
+                }
 
                 const id = columnas[1].trim();
                 const nombre = columnas[2].trim();
@@ -808,7 +776,6 @@
                 const municipio_localidad = columnas[4].trim();
 
                 if (proyectoRaw && id) {
-                    // Indexación compuesta inequívoca para evitar duplicidad del ID "1"
                     const llaveCompuesta = `${proyectoRaw}_${id}`;
                     mapaPuentes[llaveCompuesta] = { proyecto: proyectoRaw, id, nombre, estado, municipio_localidad };
                     contador++;
@@ -831,13 +798,12 @@
     // 3. AUTOCOMPLETADO CON LLAVE COMPUESTA
     // =========================================================================
     function autocompletarCamposPuente(idBusqueda) {
-        if (!idBusqueda.trim()) { limpliarCampos(); return; }
+        if (!idBusqueda.trim()) { limpiarCampos(); return; }
         
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
         if (!dbLocal) return;
 
         const inventario = JSON.parse(dbLocal);
-        // Construye la llave usando el proyecto maestro seleccionado en el select superior
         const llaveFiltro = `${proyectoSeleccionado.toUpperCase()}_${idBusqueda.trim()}`;
         const puente = inventario[llaveFiltro];
 
@@ -859,11 +825,11 @@
                 fLocalidad.value = "";
             }
         } else {
-            limpliarCampos();
+            limpiarCampos();
         }
     }
 
-    function limpliarCampos() {
+    function limpiarCampos() {
         document.getElementById('v002').value = "";
         document.getElementById('v004').value = "";
         document.getElementById('v005').value = "";
@@ -948,10 +914,11 @@
             lector.readAsDataURL(archivo);
         }
     }
+
     // =========================================================================
-    // 8. PERSISTENCIA INTEGRAL SEGURA (MAPPING DE MÓDULOS DEL REPORTE)
+    // 5. OBTENCIÓN Y GUARDADO PERSISTENTE SEGURO
     // =========================================================================
-   function guardarFormularioMaestro() {
+    function guardarFormularioMaestro() {
         const pId = document.getElementById('v003').value.trim();
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
         const llaveCompuesta = `${proyectoSeleccionado.toUpperCase()}_${pId}`;
@@ -1058,8 +1025,8 @@
                 .filter(f => f.data !== "") // Excluye del guardado las tarjetas vacías sin archivo cargado
         };
 
-       localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
-        alert(`Formulario guardado. Folio: ${folioUnico}`);
+      localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
+        alert(`Formulario guardado de manera exitosa.\nFolio: ${folioUnico}`);
         location.href = 'reportes.html?folio=' + folioUnico;
     }
 </script>
