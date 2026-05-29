@@ -41,7 +41,7 @@
         }
         .btn-print { background: #27ae60; color: white; }
         .btn-back { background: #2980b9; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 12px; font-weight: bold;}
-        select { padding: 6px; font-size: 12px; width: 250px; }
+        select { padding: 6px; font-size: 12px; width: 350px; }
 
         /* Contenedor del Reporte Físico (Formato Losa de Impresión A4/Carta) */
         #reporteContenido {
@@ -197,6 +197,7 @@
     <div id="reporteContenido"></div>
 
     <script>
+        // Sincronización estricta del diccionario de proyectos maestros
         const CONFIG_PROYECTOS = {
             "LIPSA": { prefijo: "LIPSA", nombre: "LIBRAMIENTO ICA LA PIEDAD (LIPSA)" },
             "PALMILLAS": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
@@ -226,11 +227,13 @@
                         const datos = JSON.parse(localStorage.getItem(llave));
                         const option = document.createElement('option');
                         option.value = datos.folio;
-                        option.text = `Folio: ${datos.folio} - ID: ${datos.puenteId} (${datos.nombrePuente || 'Sin Nombre'})`;
+                        // Mostrar proyecto e ID por separado para mitigar colisiones visuales de IDs idénticos
+                        const projLabel = datos.proyecto ? datos.proyecto : "SIAP";
+                        option.text = `[${projLabel}] Folio: ${datos.folio} - ID Puente: ${datos.puenteId} (${datos.nombrePuente || 'Sin Nombre'})`;
                         selector.appendChild(option);
                         encontrados++;
                     } catch(e) {
-                        console.error("Error al parsear clave: " + llave);
+                        console.error("Error al parsear clave de almacenamiento local: " + llave);
                     }
                 }
             }
@@ -239,7 +242,7 @@
                 document.getElementById('reporteContenido').innerHTML = `
                     <div class="page" style="text-align:center; padding-top:100px;">
                         <h2>No se encontraron formularios guardados en LocalStorage.</h2>
-                        <p style="margin-top:15px; font-size:13px; color:#7f8c8d;">Regresa a la pestaña de inspección y exporta un formulario para generar el reporte técnico.</p>
+                        <p style="margin-top:15px; font-size:13px; color:#7f8c8d;">Regresa a la pestaña de inspección, selecciona tu proyecto, llena los datos y presiona "Guardar Registro General".</p>
                     </div>`;
                 return;
             }
@@ -273,7 +276,7 @@
             const nombreOficial = (CONFIG_PROYECTOS[proyectoActivo.toUpperCase()] || { nombre: "SISTEMA DE ADMINISTRACIÓN DE PUENTES" }).nombre;
             
             let bannerLogoHtml = "";
-            let logoBase64 = ""; 
+            let logoBase64 = "";
 
             // =========================================================================
             // INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN
