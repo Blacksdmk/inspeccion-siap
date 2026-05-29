@@ -227,6 +227,7 @@
                         const datos = JSON.parse(localStorage.getItem(llave));
                         const option = document.createElement('option');
                         option.value = datos.folio;
+                        // Mostrar proyecto e ID por separado para mitigar colisiones visuales de IDs idénticos
                         const projLabel = datos.proyecto ? datos.proyecto : "SIAP";
                         option.text = `[${projLabel}] Folio: ${datos.folio} - ID Puente: ${datos.puenteId} (${datos.nombrePuente || 'Sin Nombre'})`;
                         selector.appendChild(option);
@@ -257,68 +258,89 @@
             }
         }
 
-        function cargarReportePorFolio(folio) {
-            const rawData = localStorage.getItem('siap_folio_' + folio);
-            if (!rawData) return;
+       function cargarReportePorFolio(folio) {
+    const rawData = localStorage.getItem('siap_folio_' + folio);
+    if (!rawData) return;
+    
+    const data = JSON.parse(rawData);
+    
+    const cG = data.condicionGeneral || {};
+    const sR = data.superficieRodamiento || {};
+    const sC = data.superestructuraConcreto || {};
+    const subC = data.substructureConcreto || data.subestructuraConcreto || {}; 
+    const cP = data.concretoPresforzado || {};
+    const calif = data.calificacionGeneral || {};
+    const rG = data.recomendacionesGenerales || {};
+
+    // Corrección lógica: Extrae dinámicamente el proyecto del LocalStorage sin forzar "LIPSA" de entrada
+    const proyectoActivo = data.proyecto || "SIAP";
+    const nombreOficial = (CONFIG_PROYECTOS[proyectoActivo.toUpperCase()] || { nombre: "SISTEMA DE ADMINISTRACIÓN DE PUENTES" }).nombre;
+    
+    let bannerLogoHtml = "";
+    let logoBase64 = ""; 
+
+    // =========================================================================
+    // INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN (EVALUACIÓN CORREGIDA)
+    // =========================================================================
+    switch (proyectoActivo.toUpperCase()) {
+        case "LIPSA":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_LIPSA";
             
-            const data = JSON.parse(rawData);
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #0033aa; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #0033aa; color: #fff; font-weight: 900; font-size: 13px; padding: 5px; border-radius: 2px; text-align: center;">LIPSA</div><div style="font-size: 7px; color: #0033aa; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center; letter-spacing: 0.2px;">ICA LA PIEDAD</div></div>`
+                : `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+            break;
             
-            const cG = data.condicionGeneral || {};
-            const sR = data.superficieRodamiento || {};
-            const sC = data.superestructuraConcreto || {};
-            const subC = data.substructureConcreto || data.subestructuraConcreto || {}; 
-            const cP = data.concretoPresforzado || {};
-            const calif = data.calificacionGeneral || {};
-            const rG = data.recomendacionesGenerales || {};
+        case "MAYAB TRONCAL":
+        case "MAYAB RAMAL":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_MAYAB";
+            const vertiente = proyectoActivo.toUpperCase().includes("TRONCAL") ? "TRONCAL" : "RAMAL";
+            
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #27ae60; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #27ae60; color: #fff; font-weight: 900; font-size: 13px; padding: 5px; border-radius: 2px; text-align: center;">MAYAB</div><div style="font-size: 7px; color: #27ae60; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">${vertiente}</div></div>`
+                : `<div style="text-align:center;"><img src="${logoBase64}" style="max-width:100%; max-height:45px; object-fit:contain; display:block; margin:0 auto;"><span style="font-size:8px; font-weight:bold; color:#27ae60;">${vertiente}</span></div>`;
+            break;
+            
+        case "QUERÉTARO":
+        case "PALMILLAS":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_QUERETARO";
+            
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #8e44ad; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #8e44ad; color: #fff; font-weight: 900; font-size: 11px; padding: 6px 2px; border-radius: 2px; text-align: center;">QUERÉTARO</div><div style="font-size: 7px; color: #8e44ad; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">PALMILLAS</div></div>`
+                : `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+            break;
+            
+        case "RIOVERDE":
+        case "RÍO VERDE":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_RIOVERDE";
+            
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #e67e22; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #e67e22; color: #fff; font-weight: 900; font-size: 12px; padding: 7px 4px; border-radius: 2px; text-align: center;">RÍO VERDE</div></div>`
+                : `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+            break;
+            
+        case "MAXITÚNEL":
+        case "ACAPULCO":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_MAXITUNEL";
+            
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #2c3e50; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #2c3e50; color: #fff; font-weight: 900; font-size: 11px; padding: 6px 2px; border-radius: 2px; text-align: center;">MAXITÚNEL</div><div style="font-size: 7px; color: #2c3e50; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">ACAPULCO</div></div>`
+                : `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+            break;
+            
+        case "SALAMANCA":
+            logoBase64 = "data:image/png;base64,REEMPLAZAR_POR_CADENA_BASE64_DE_SALAMANCA";
+            
+            bannerLogoHtml = logoBase64.includes("REEMPLAZAR_") 
+                ? `<div style="border: 2px solid #d35400; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;"><div style="background: #d35400; color: #fff; font-weight: 900; font-size: 11px; padding: 6px 2px; border-radius: 2px; text-align: center;">SALAMANCA</div><div style="font-size: 7px; color: #d35400; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">LEÓN</div></div>`
+                : `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+            break;
+            
+        default:
+            bannerLogoHtml = `<div style="background: #7f8c8d; color: #fff; font-weight: bold; padding: 8px; border-radius: 4px; text-align: center;">SIAP</div>`;
+    }
 
-            const proyectoNormalizado = (data.proyecto || "").toUpperCase().trim();
-            let nombreOficial = "SISTEMA DE ADMINISTRACIÓN DE PUENTES";
-            let bannerLogoHtml = "";
-            let logoBase64 = "";
-
-            // =========================================================================
-            // INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN (CORREGIDO)
-            // =========================================================================
-            if (CONFIG_PROYECTOS[proyectoNormalizado]) {
-                nombreOficial = CONFIG_PROYECTOS[proyectoNormalizado].nombre;
-                
-                switch (proyectoNormalizado) {
-                    case "LIPSA":
-                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAScAAABcCAY...[Cadena_Base64_Lipsa]...";
-                        bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
-                        break;
-                        
-                    case "MAYAB TRONCAL":
-                    case "MAYAB RAMAL":
-                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAABWCAY...[Cadena_Base64_Mayab]...";
-                        const vertiente = proyectoNormalizado.includes("TRONCAL") ? "TRONCAL" : "RAMAL";
-                        bannerLogoHtml = `<div style="text-align:center;"><img src="${logoBase64}" style="max-width:100%; max-height:45px; object-fit:contain; display:block; margin:0 auto;"><span style="font-size:8px; font-weight:bold; color:#27ae60;">${vertiente}</span></div>`;
-                        break;
-                        
-                    case "QUERÉTARO":
-                    case "PALMILLAS":
-                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAABmCAY...[Cadena_Base64_Palmillas]...";
-                        bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
-                        break;
-                        
-                    default:
-                        bannerLogoHtml = `
-                            <div style="border: 2px solid #4a5568; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
-                                <div style="background: #4a5568; color: #fff; font-weight: 900; font-size: 11px; padding: 5px; border-radius: 2px; text-align: center; text-transform: uppercase;">
-                                    ${CONFIG_PROYECTOS[proyectoNormalizado].prefijo}
-                                </div>
-                            </div>`;
-                        break;
-                }
-            } else {
-                bannerLogoHtml = `
-                    <div style="border: 2px solid #1a252f; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
-                        <div style="background: #1a252f; color: #fff; font-weight: 900; font-size: 12px; padding: 5px; border-radius: 2px; text-align: center;">SIAP</div>
-                        <div style="font-size: 7px; color: #1a252f; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">INSPECCIÓN TÉCNICA</div>
-                    </div>`;
-            }
-
-            let htmlHTML = "";
+    let htmlHTML = "";
 
             // PÁGINA 1
             htmlHTML += `
@@ -478,7 +500,7 @@
 
                 htmlHTML += `
                 <div class="page">
-                    <table class="header-table"><tr><td class="logo-space">${bannerLogoHtml}</td><td class="title-space">CATÁLOGO FOTOGRÁFICO DE CAMPO<br><b>${proyectoNormalizado || 'SIAP'}</b></td><td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}</td></tr></table>
+                    <table class="header-table"><tr><td class="logo-space">${bannerLogoHtml}</td><td class="title-space">CATÁLOGO FOTOGRÁFICO DE CAMPO<br><b>${proyectoActivo.toUpperCase()}</b></td><td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}</td></tr></table>
                     <div class="section-header">10. Catálogo Fotográfico de Daños y Defectos</div>
                     <div style="display: block; width: 100%;">`;
 
@@ -543,6 +565,6 @@
 
             document.getElementById('reporteContenido').innerHTML = htmlHTML;
         }
-    </script>
+</script>
 </body>
 </html>
