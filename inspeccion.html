@@ -74,14 +74,16 @@
             <span>1. Identificación y Ubicación del Activo</span>
             <div style="padding-right:10px;">
                 <label style="color:#fff; margin-right:5px; font-size:11px;">CONCESIÓN / PROYECTO MAESTRO:</label>
-                <select id="selector-proyecto-maestro" style="padding:3px; font-size:12px; font-weight:bold; color:#0033aa;" onchange="cambiarProyecto(this.value)">
-                    <option value="LIPSA">LIPSA (Ica La Piedad)</option>
-                    <option value="QUERÉTARO">QUERÉTARO / PALMILLAS</option>
-                    <option value="RÍO VERDE">RÍO VERDE</option>
-                    <option value="MAYAB">MAYAB</option>
-                    <option value="MAXITÚNEL">MAXITÚNEL ACAPULCO</option>
-                    <option value="SALAMANCA">SALAMANCA-LEÓN</option>
-                </select>
+               <select id="selector-proyecto-maestro" style="padding:3px; font-size:12px; font-weight:bold; color:#0033aa;" onchange="cambiarProyecto(this.value)">
+    <option value="LIPSA">LIPSA (Ica La Piedad)</option>
+    <option value="QUERÉTARO">QUERÉTARO / PALMILLAS</option>
+    <option value="RÍO VERDE">RÍO VERDE</option>
+    <option value="MAYAB TRONCAL">MAYAB - TRONCAL</option>
+    <option value="MAYAB RAMAL">MAYAB - RAMAL</option>
+    <option value="MAXITÚNEL">MAXITÚNEL ACAPULCO</option>
+    <option value="SALAMANCA">SALAMANCA-LEÓN</option>
+</select>
+                
             </div>
         </div>
 
@@ -695,17 +697,41 @@
     let listaFotosDinamicas = [];
 
     // Diccionario técnico para automatizar prefijos y nombres oficiales
+   // =========================================================================
+    // 1. DICCIONARIO ACTUALIZADO CON SUBDIVISIONES DE MAYAB
+    // =========================================================================
     const CONFIG_PROYECTOS = {
         "LIPSA": { prefijo: "LIPSA", nombre: "LIBRAMIENTO ICA LA PIEDAD (LIPSA)" },
         "PALMILLAS": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
         "QUERÉTARO": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
         "RIOVERDE": { prefijo: "RIVE", nombre: "AUTOPISTA RÍO VERDE - CIUDAD VALLES" },
         "RÍO VERDE": { prefijo: "RIVE", nombre: "AUTOPISTA RÍO VERDE - CIUDAD VALLES" },
-        "MAYAB": { prefijo: "MAYAB", nombre: "AUTOPISTA DEL MAYAB" },
+        "MAYAB TRONCAL": { prefijo: "MAY-T", nombre: "AUTOPISTA DEL MAYAB - TRONCAL" },
+        "MAYAB RAMAL": { prefijo: "MAY-R", nombre: "AUTOPISTA DEL MAYAB - RAMAL" },
         "MAXITÚNEL": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
         "ACAPULCO": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
         "SALAMANCA": { prefijo: "SALE", nombre: "AUTOPISTA SALAMANCA - LEÓN" }
     };
+
+    // Actualización del normalizador dentro de la función procesarYGuardarExcel()
+    // Reemplaza el bloque de ifs de normalización de proyectos por este:
+    let proyectoRaw = columnas[0].trim().toUpperCase();
+    if (proyectoRaw.includes("LIPSA")) proyectoRaw = "LIPSA";
+    if (proyectoRaw.includes("PALMILLAS") || proyectoRaw.includes("QUERETARO") || proyectoRaw.includes("QUERÉTARO")) proyectoRaw = "QUERÉTARO";
+    if (proyectoRaw.includes("RIOVERDE") || proyectoRaw.includes("RÍO VERDE") || proyectoRaw.includes("RIO VERDE")) proyectoRaw = "RÍO VERDE";
+    if (proyectoRaw.includes("MAXITUNEL") || proyectoRaw.includes("MAXITÚNEL") || proyectoRaw.includes("ACAPULCO")) proyectoRaw = "MAXITÚNEL";
+    if (proyectoRaw.includes("SALAMANCA")) proyectoRaw = "SALAMANCA";
+    
+    // Tratamiento analítico específico para subdivisiones del Mayab
+    if (proyectoRaw.includes("MAYAB")) {
+        if (proyectoRaw.includes("TRONCAL")) {
+            proyectoRaw = "MAYAB TRONCAL";
+        } else if (proyectoRaw.includes("RAMAL")) {
+            proyectoRaw = "MAYAB RAMAL";
+        } else {
+            proyectoRaw = "MAYAB TRONCAL"; // Por omisión asigna Troncal
+        }
+    }
 
     window.onload = function() {
         verificarEstatusBaseDatos();
