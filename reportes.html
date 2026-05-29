@@ -227,7 +227,6 @@
                         const datos = JSON.parse(localStorage.getItem(llave));
                         const option = document.createElement('option');
                         option.value = datos.folio;
-                        // Mostrar proyecto e ID por separado para mitigar colisiones visuales de IDs idénticos
                         const projLabel = datos.proyecto ? datos.proyecto : "SIAP";
                         option.text = `[${projLabel}] Folio: ${datos.folio} - ID Puente: ${datos.puenteId} (${datos.nombrePuente || 'Sin Nombre'})`;
                         selector.appendChild(option);
@@ -272,65 +271,51 @@
             const calif = data.calificacionGeneral || {};
             const rG = data.recomendacionesGenerales || {};
 
-            const proyectoActivo = data.proyecto || "LIPSA";
-            const nombreOficial = (CONFIG_PROYECTOS[proyectoActivo.toUpperCase()] || { nombre: "SISTEMA DE ADMINISTRACIÓN DE PUENTES" }).nombre;
-            
+            const proyectoNormalizado = (data.proyecto || "").toUpperCase().trim();
+            let nombreOficial = "SISTEMA DE ADMINISTRACIÓN DE PUENTES";
             let bannerLogoHtml = "";
             let logoBase64 = "";
 
             // =========================================================================
-            // INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN
+            // INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN (CORREGIDO)
             // =========================================================================
-            // =========================================================================
-// INYECCIÓN DE CADENAS DE TEXTO BASE64 REALES POR CONCESIÓN (CORREGIDO)
-// =========================================================================
-const proyectoNormalizado = (data.proyecto || "").toUpperCase().trim();
-
-// 1. Validar si el proyecto seleccionado existe en la configuración maestra
-if (CONFIG_PROYECTOS[proyectoNormalizado]) {
-    // Asignar el nombre del proyecto activo de forma dinámica
-    const nombreOficial = CONFIG_PROYECTOS[proyectoNormalizado].nombre;
-    
-    switch (proyectoNormalizado) {
-        case "LIPSA":
-            logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAScAAABcCAY...[Cadena_Base64_Lipsa]...";
-            bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
-            break;
-            
-        case "MAYAB TRONCAL":
-        case "MAYAB RAMAL":
-            logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAABWCAY...[Cadena_Base64_Mayab]...";
-            const vertiente = proyectoNormalizado.includes("TRONCAL") ? "TRONCAL" : "RAMAL";
-            bannerLogoHtml = `<div style="text-align:center;"><img src="${logoBase64}" style="max-width:100%; max-height:45px; object-fit:contain; display:block; margin:0 auto;"><span style="font-size:8px; font-weight:bold; color:#27ae60;">${vertiente}</span></div>`;
-            break;
-            
-        case "QUERÉTARO":
-        case "PALMILLAS":
-            logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAABmCAY...[Cadena_Base64_Palmillas]...";
-            bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
-            break;
-            
-        default:
-            // Bloque de contingencia genérico si no se dispone del Base64 del logo
-            bannerLogoHtml = `
-                <div style="border: 2px solid #4a5568; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
-                    <div style="background: #4a5568; color: #fff; font-weight: 900; font-size: 11px; padding: 5px; border-radius: 2px; text-align: center; text-transform: uppercase;">
-                        ${CONFIG_PROYECTOS[proyectoNormalizado].prefijo}
-                    </div>
-                </div>`;
-            break;
-    }
-} else {
-    // 2. Si el proyecto es indefinido o vacío ("SIAP"), se genera un banner de texto estructurado libre de logos fijos
-    bannerLogoHtml = `
-        <div style="border: 2px solid #1a252f; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
-            <div style="background: #1a252f; color: #fff; font-weight: 900; font-size: 12px; padding: 5px; border-radius: 2px; text-align: center;">SIAP</div>
-            <div style="font-size: 7px; color: #1a252f; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">INSPECCIÓN TÉCNICA</div>
-        </div>`;
-}
-                    
-                default:
-                    bannerLogoHtml = `<div style="background: #7f8c8d; color: #fff; font-weight: bold; padding: 8px; border-radius: 4px; text-align: center;">SIAP</div>`;
+            if (CONFIG_PROYECTOS[proyectoNormalizado]) {
+                nombreOficial = CONFIG_PROYECTOS[proyectoNormalizado].nombre;
+                
+                switch (proyectoNormalizado) {
+                    case "LIPSA":
+                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAScAAABcCAY...[Cadena_Base64_Lipsa]...";
+                        bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+                        break;
+                        
+                    case "MAYAB TRONCAL":
+                    case "MAYAB RAMAL":
+                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAABWCAY...[Cadena_Base64_Mayab]...";
+                        const vertiente = proyectoNormalizado.includes("TRONCAL") ? "TRONCAL" : "RAMAL";
+                        bannerLogoHtml = `<div style="text-align:center;"><img src="${logoBase64}" style="max-width:100%; max-height:45px; object-fit:contain; display:block; margin:0 auto;"><span style="font-size:8px; font-weight:bold; color:#27ae60;">${vertiente}</span></div>`;
+                        break;
+                        
+                    case "QUERÉTARO":
+                    case "PALMILLAS":
+                        logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAABmCAY...[Cadena_Base64_Palmillas]...";
+                        bannerLogoHtml = `<img src="${logoBase64}" style="max-width:100%; max-height:55px; object-fit:contain; display:block; margin:0 auto;">`;
+                        break;
+                        
+                    default:
+                        bannerLogoHtml = `
+                            <div style="border: 2px solid #4a5568; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
+                                <div style="background: #4a5568; color: #fff; font-weight: 900; font-size: 11px; padding: 5px; border-radius: 2px; text-align: center; text-transform: uppercase;">
+                                    ${CONFIG_PROYECTOS[proyectoNormalizado].prefijo}
+                                </div>
+                            </div>`;
+                        break;
+                }
+            } else {
+                bannerLogoHtml = `
+                    <div style="border: 2px solid #1a252f; padding: 4px; border-radius: 4px; background: #fff; width: 100%; display: inline-block;">
+                        <div style="background: #1a252f; color: #fff; font-weight: 900; font-size: 12px; padding: 5px; border-radius: 2px; text-align: center;">SIAP</div>
+                        <div style="font-size: 7px; color: #1a252f; font-weight: bold; margin-top: 2px; text-transform: uppercase; text-align: center;">INSPECCIÓN TÉCNICA</div>
+                    </div>`;
             }
 
             let htmlHTML = "";
@@ -493,7 +478,7 @@ if (CONFIG_PROYECTOS[proyectoNormalizado]) {
 
                 htmlHTML += `
                 <div class="page">
-                    <table class="header-table"><tr><td class="logo-space">${bannerLogoHtml}</td><td class="title-space">CATÁLOGO FOTOGRÁFICO DE CAMPO<br><b>${proyectoActivo.toUpperCase()}</b></td><td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}</td></tr></table>
+                    <table class="header-table"><tr><td class="logo-space">${bannerLogoHtml}</td><td class="title-space">CATÁLOGO FOTOGRÁFICO DE CAMPO<br><b>${proyectoNormalizado || 'SIAP'}</b></td><td class="meta-space"><b>FOLIO:</b> ${data.folio || 'N/A'}</td></tr></table>
                     <div class="section-header">10. Catálogo Fotográfico de Daños y Defectos</div>
                     <div style="display: block; width: 100%;">`;
 
