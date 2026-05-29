@@ -873,24 +873,29 @@
             <input type="file" accept="image/*" onchange="procesarImagenDinamica(this, '${fotoId}')">
             <div style="margin-top: 10px; text-align: left;">
                 <label>Observación Predeterminada SIAP</label>
-                <select id="obs_${fotoId}" style="width: 100%; font-size: 11px; padding: 4px;">
-                    <option value="Sin daños apreciables / Condición Estable">Sin daños apreciables / Condición Estable</option>
-                    <option value="Hundimiento visible en accesos u apoyos">Hundimiento visible en accesos u apoyos</option>
-                    <option value="Desplome / Desalineación de elementos estructurales">Desplome / Desalineación de elementos estructurales</option>
-                    <option value="Socavación severa detectada en subestructura">Socavación severa detectada en subestructura</option>
-                    <option value="Superficie de rodamiento con baches / Deterioro regular">Superficie de rodamiento con baches / Deterioro regular</option>
-                    <option value="Carpeta asfáltica con desgaste severo / Grietas de fatiga">Carpeta asfáltica con desgaste severo / Grietas de fatiga</option>
-                    <option value="Fisuras por esfuerzo cortante en zona de apoyos (Trabes)">Fisuras por esfuerzo cortante en zona de apoyos (Trabes)</option>
-                    <option value="Grietamiento por flexión al centro del claro">Grietamiento por flexión al centro del claro</option>
-                    <option value="Agrietamiento severo en losas de calzada">Agrietamiento severo en losas de calzada</option>
-                    <option value="Juntas de expansión dañadas / Desalineadas">Juntas de expansión dañadas / Desalineadas</option>
-                    <option value="Desconchamiento estructural con acero de refuerzo expuesto">Desconchamiento estructural con acero de refuerzo expuesto</option>
-                    <option value="Agrietamiento en caballetes extremos">Agrietamiento en caballetes extremos</option>
-                    <option value="Agrietamiento en caballetes intermedios / Pilas">Agrietamiento en caballetes intermedios / Pilas</option>
-                    <option value="Desconchamiento / Fisuras en columnas de apoyo">Desconchamiento / Fisuras en columnas de apoyo</option>
-                    <option value="Ductos o cables de presfuerzo expuestos">Ductos o cables de presfuerzo expuestos</option>
-                    <option value="Corrosión avanzada en torones / Cables rotos">Corrosión avanzada en torones / Cables rotos</option>
-                </select>
+               <select id="obs_${fotoId}" style="width: 100%; font-size: 11px; padding: 4px;">
+    <option value="Se requiere deshierbe en cunetas">Se requiere deshierbe en cunetas</option>
+    <option value="Se requiere deshierbe en aleros">Se requiere deshierbe en aleros</option>
+    <option value="Se requiere deshierbe en apoyos centrales">Se requiere deshierbe en apoyos centrales</option>
+    <option value="Se requiere deshierbe en cabezal">Se requiere deshierbe en cabezal</option>
+    <option value="Se requiere deshierbe en calzada">Se requiere deshierbe en calzada</option>
+    <option value="Se requiere deshierbe en Conos de derrame">Se requiere deshierbe en Conos de derrame</option>
+    <option value="Se requiere deshierbe en cuerpo de terraplén">Se requiere deshierbe en cuerpo de terraplén</option>
+    <option value="Se requiere deshierbe en Defensa metálica">Se requiere deshierbe en Defensa metálica</option>
+    <option value="Se requiere deshierbe en Lavaderos">Se requiere deshierbe en Lavaderos</option>
+    <option value="Se requiere deshierbe en losas acceso">Se requiere deshierbe en losas acceso</option>
+    <option value="Se requiere deshierbe en Muros de escamas">Se requiere deshierbe en Muros de escamas</option>
+    <option value="Se requiere deshierbe en Rampas">Se requiere deshierbe en Rampas</option>
+    <option value="Se requiere desrame de arboles">Se requiere desrame de arboles</option>
+    <option value="Se requiere extensión /desazolve de drenes">Se requiere extensión /desazolve de drenes</option>
+    <option value="Se requiere reposición o cambio de refuerzos en diafragmas">Se requiere reposición o cambio de refuerzos en diafragmas</option>
+    <option value="Se requiere sellado de juntas, fisuras">Se requiere sellado de juntas, fisuras</option>
+    <option value="Se tiene acero expuesto">Se tiene acero expuesto</option>
+    <option value="Se tiene asentamiento en cono de derrame">Se tiene asentamiento en cono de derrame</option>
+    <option value="Se tiene asentamiento en losas de acceso">Se tiene asentamiento en losas de acceso</option>
+    <option value="Panoramica">Panoramica</option>
+    <option value="Sin observaciones">Sin observaciones</option>
+</select>
             </div>
         `;
         contenedor.appendChild(tarjeta);
