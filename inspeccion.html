@@ -53,7 +53,7 @@
             <h2 style="margin: 0; font-size: 1.5em; color: #1a252f;">SISTEMA DE ADMINISTRACIÓN DE PUENTES</h2>
             <h4 style="margin: 5px 0 0 0; color: #7f8c8d; font-style: italic;">Registro Integrado de Datos de Campo</h4>
         </div>
-        <div style="font-weight: bold; font-size: 1.1em; color: #34495e;">LIBRAMIENTO ICA</div>
+        <div id="lbl-proyecto-header" style="font-weight: bold; font-size: 1.1em; color: #34495e;">PROYECTO</div>
     </div>
 
     <div class="section">
@@ -68,6 +68,26 @@
                 <input type="text" id="txt-fecha" readonly>
             </div>
         </div>
+
+        
+<div class="section-header" style="background:#2c3e50; display:flex; justify-content:space-between; align-items:center;">
+            <span>1. Identificación y Ubicación del Activo</span>
+            <div style="padding-right:10px;">
+                <label style="color:#fff; margin-right:5px; font-size:11px;">CONCESIÓN / PROYECTO MAESTRO:</label>
+                <select id="selector-proyecto-maestro" style="padding:3px; font-size:12px; font-weight:bold; color:#0033aa;" onchange="cambiarProyecto(this.value)">
+                    <option value="LIPSA">LIPSA (Ica La Piedad)</option>
+                    <option value="QUERÉTARO">QUERÉTARO / PALMILLAS</option>
+                    <option value="RÍO VERDE">RÍO VERDE</option>
+                    <option value="MAYAB">MAYAB</option>
+                    <option value="MAXITÚNEL">MAXITÚNEL ACAPULCO</option>
+                    <option value="SALAMANCA">SALAMANCA-LEÓN</option>
+                </select>
+            </div>
+        </div>
+
+
+
+        
         <div class="row">
             <div class="field">
                 <label>(002) NOMBRE DE LA ESTRUCTURA</label>
