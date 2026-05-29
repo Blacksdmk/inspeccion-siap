@@ -667,57 +667,66 @@
 </div>
 
 <script>
-  // =========================================================================
-    // 1. VARIABLES GLOBALES Y CONTROL DE CONFIGURACIÓN DINÁMICA
     // =========================================================================
-    const folioUnico = "ICA-" + Math.floor(100000 + Math.random() * 900000);
-    // Cambiamos el objeto fijo por un array dinámico indexable
+    // 1. CONFIGURACIÓN DE PROYECTOS, PREFIJOS Y CONFIGURACIÓN DINÁMICA
+    // =========================================================================
+    let proyectoSeleccionado = "";
+    let folioUnico = "";
     let listaFotosDinamicas = [];
 
-    // =========================================================================
-    // 2. CICLO DE VIDA DEL DOM (VINCULACIÓN DE EVENTOS SEGUROS)
-    // =========================================================================
+    // Diccionario técnico para automatizar prefijos y nombres oficiales
+    const CONFIG_PROYECTOS = {
+        "LIPSA": { prefijo: "LIPSA", nombre: "LIBRAMIENTO ICA LA PIEDAD (LIPSA)" },
+        "PALMILLAS": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
+        "QUERÉTARO": { prefijo: "PALM", nombre: "CONCESIONARIA DE INFRAESTRUCTURA DE PALMILLAS" },
+        "RIOVERDE": { prefijo: "RIVE", nombre: "AUTOPISTA RÍO VERDE - CIUDAD VALLES" },
+        "RÍO VERDE": { prefijo: "RIVE", nombre: "AUTOPISTA RÍO VERDE - CIUDAD VALLES" },
+        "MAYAB": { prefijo: "MAYAB", nombre: "AUTOPISTA DEL MAYAB" },
+        "MAXITÚNEL": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
+        "ACAPULCO": { prefijo: "MAXI", nombre: "MAXITÚNEL ACAPULCO" },
+        "SALAMANCA": { prefijo: "SALE", nombre: "AUTOPISTA SALAMANCA - LEÓN" }
+    };
+
     window.onload = function() {
-        document.getElementById('lbl-folio').innerText = folioUnico;
-        document.getElementById('txt-fecha').value = new Date().toLocaleDateString('es-MX');
         verificarEstatusBaseDatos();
-
-        // Enlace rígido por ID para mitigar bloqueos de interfaz
-        const btnConfig = document.getElementById('btn-abrir-config');
-        if (btnConfig) {
-            btnConfig.addEventListener('click', abrirModal);
-        }
-
-        // NUEVO: Inicializa el contenedor generando de inmediato la primera tarjeta
+        cambiarProyecto(document.getElementById('selector-proyecto-maestro').value);
         agregarNuevaTarjetaFoto();
     };
 
-    // Cerrar ventana modal de forma segura si se hace clic fuera del recuadro
-    window.onclick = function(e) {
-        const modal = document.getElementById('modal-db');
-        if (e.target === modal) {
-            cerrarModal();
-        }
-    };
-
-    // =========================================================================
-    // 3. MÓDULO DE CONTROL DE VENTANA MODAL (CARGA MASIVA EXCEL)
-    // =========================================================================
-    function abrirModal() { 
-        document.getElementById('modal-db').style.display = 'flex'; 
+    // Generador síncrono de folios con prefijo dinámico
+    function generarFolioProyecto(codigo) {
+        const conf = CONFIG_PROYECTOS[codigo.toUpperCase()] || { prefijo: "SIAP" };
+        folioUnico = conf.prefijo + "-" + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('lbl-folio').innerText = folioUnico;
+        document.getElementById('txt-fecha').value = new Date().toLocaleDateString('es-MX');
     }
 
-    function cerrarModal() { 
-        document.getElementById('modal-db').style.display = 'none'; 
-        document.getElementById('excel_paste').value = ''; 
+    // Evento disparado al cambiar el proyecto en la interfaz
+    function cambiarProyecto(proyecto) {
+        proyectoSeleccionado = proyecto;
+        generarFolioProyecto(proyecto);
+        
+        // Cambiar membrete de texto dinámicamente en el encabezado
+        const conf = CONFIG_PROYECTOS[proyecto.toUpperCase()] || { nombre: "SISTEMA GENERAL" };
+        document.getElementById('lbl-proyecto-header').innerText = conf.nombre;
+        
+        // Forzar limpieza de campos de autocompletado al cambiar de proyecto
+        document.getElementById('v003').value = "";
+        autocompletarCamposPuente("");
     }
+
+    // =========================================================================
+    // 2. MODAL Y CONTROLADOR DE IMPORTACIÓN MATRICIAL DE EXCEL (5 COLUMNAS)
+    // =========================================================================
+    function abrirModal() { document.getElementById('modal-db').style.display = 'flex'; }
+    function cerrarModal() { document.getElementById('modal-db').style.display = 'none'; document.getElementById('excel_paste').value = ''; }
 
     function verificarEstatusBaseDatos() {
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
         const indicador = document.getElementById('db-indicator');
         if (dbLocal) {
             const tamano = Object.keys(JSON.parse(dbLocal)).length;
-            indicador.innerText = `✔️ Base de Datos Activa: ${tamano} Puentes`;
+            indicador.innerText = `✔️ Base Activa: ${tamano} Puentes`;
             indicador.style.color = "#27ae60";
         } else {
             indicador.innerText = "⚠️ Sin Base de Datos";
@@ -725,36 +734,37 @@
         }
     }
 
-    // =========================================================================
-    // 4. PROCESAMIENTO MATRICIAL DE DATOS DESDE PORTAPAPELES (EXCEL)
-    // =========================================================================
     function procesarYGuardarExcel() {
         const rawText = document.getElementById('excel_paste').value;
-        if (!rawText.trim()) { 
-            alert("El área de texto está vacía."); 
-            return; 
-        }
+        if (!rawText.trim()) { alert("El área de texto está vacía."); return; }
 
         const lineas = rawText.split(/\r?\n/);
-        let mapaPuentes = {};
+        let mapaPuentes = JSON.parse(localStorage.getItem('siap_inventario_puentes')) || {};
         let contador = 0;
 
         lineas.forEach(linea => {
             if (!linea.trim()) return;
-            const columnas = linea.split('\t'); // Tabulación nativa de Excel
+            const columnas = linea.split('\t');
 
-            if (columnas.length >= 4) {
-                const id = columnas[0].trim();
-                const nombre = columnas[1].trim();
-                const estado = columnas[2].trim();
-                const municipio_localidad = columnas[3].trim();
+            if (columnas.length >= 5) {
+                let proyectoRaw = columnas[0].trim().toUpperCase();
+                // Normalización de llaves de proyectos
+                if (proyectoRaw.includes("LIPSA")) proyectoRaw = "LIPSA";
+                if (proyectoRaw.includes("PALMILLAS") || proyectoRaw.includes("QUERETARO") || proyectoRaw.includes("QUERÉTARO")) proyectoRaw = "QUERÉTARO";
+                if (proyectoRaw.includes("RIOVERDE") || proyectoRaw.includes("RÍO VERDE") || proyectoRaw.includes("RIO VERDE")) proyectoRaw = "RÍO VERDE";
+                if (proyectoRaw.includes("MAYAB")) proyectoRaw = "MAYAB";
+                if (proyectoRaw.includes("MAXITUNEL") || proyectoRaw.includes("MAXITÚNEL") || proyectoRaw.includes("ACAPULCO")) proyectoRaw = "MAXITÚNEL";
+                if (proyectoRaw.includes("SALAMANCA")) proyectoRaw = "SALAMANCA";
 
-                if (id) {
-                    mapaPuentes[id] = { 
-                        nombre: nombre, 
-                        estado: estado, 
-                        municipio_localidad: municipio_localidad 
-                    };
+                const id = columnas[1].trim();
+                const nombre = columnas[2].trim();
+                const estado = columnas[3].trim();
+                const municipio_localidad = columnas[4].trim();
+
+                if (proyectoRaw && id) {
+                    // Indexación compuesta inequívoca para evitar duplicidad del ID "1"
+                    const llaveCompuesta = `${proyectoRaw}_${id}`;
+                    mapaPuentes[llaveCompuesta] = { proyecto: proyectoRaw, id, nombre, estado, municipio_localidad };
                     contador++;
                 }
             }
@@ -762,23 +772,28 @@
 
         if (contador > 0) {
             localStorage.setItem('siap_inventario_puentes', JSON.stringify(mapaPuentes));
-            alert(`Éxito: Se indexaron ${contador} puentes en LocalStorage.`);
+            alert(`Éxito: Se indexaron/actualizaron ${contador} puentes en el sistema compuesto.`);
             verificarEstatusBaseDatos();
             cerrarModal();
+            cambiarProyecto(proyectoSeleccionado);
         } else {
-            alert("Error de formato: Copie las 4 columnas requeridas de Excel.");
+            alert("Format Error: Asegúrese de copiar las 5 columnas requeridas desde Excel:\n[Proyecto] [ID] [Nombre] [Estado] [Ubicación]");
         }
     }
 
     // =========================================================================
-    // 5. AUTOCOMPLETADO Y PARSEO DE UBICACIÓN
+    // 3. AUTOCOMPLETADO CON LLAVE COMPUESTA
     // =========================================================================
-    function autocompletarCamposPuente(id) {
+    function autocompletarCamposPuente(idBusqueda) {
+        if (!idBusqueda.trim()) { limpliarCampos(); return; }
+        
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
         if (!dbLocal) return;
 
         const inventario = JSON.parse(dbLocal);
-        const puente = inventario[id.trim()];
+        // Construye la llave usando el proyecto maestro seleccionado en el select superior
+        const llaveFiltro = `${proyectoSeleccionado.toUpperCase()}_${idBusqueda.trim()}`;
+        const puente = inventario[llaveFiltro];
 
         const fNombre = document.getElementById('v002');
         const fEstado = document.getElementById('v004');
@@ -798,37 +813,33 @@
                 fLocalidad.value = "";
             }
         } else {
-            fNombre.value = fEstado.value = fMunicipio.value = fLocalidad.value = "";
+            limpliarCampos();
         }
     }
 
+    function limpliarCampos() {
+        document.getElementById('v002').value = "";
+        document.getElementById('v004').value = "";
+        document.getElementById('v005').value = "";
+        document.getElementById('v006').value = "";
+    }
+
     // =========================================================================
-    // 6. CONTROLADORES MATEMÁTICOS (CÁLCULO DE CALIFICACIÓN GENERAL)
+    // 4. MÓDULO MATEMÁTICO Y MULTIMEDIA DINÁMICO
     // =========================================================================
     function calcularTotalCalificacion() {
         const inputs = document.querySelectorAll('.calif-input');
-        let suma = 0;
-        let validos = 0;
-
+        let suma = 0, validos = 0;
         inputs.forEach(input => {
             const val = input.value;
-            if (val !== "No aplica" && val !== "") {
-                suma += parseFloat(val);
-                validos++;
-            }
+            if (val !== "No aplica" && val !== "") { suma += parseFloat(val); validos++; }
         });
-
         const promedio = validos > 0 ? (suma / validos).toFixed(2) : "0.00";
         const contenedorTotal = document.getElementById('v068_total_calificacion');
-        if (contenedorTotal) {
-            contenedorTotal.innerText = promedio;
-        }
+        if (contenedorTotal) contenedorTotal.innerText = promedio;
         return promedio;
     }
 
-    // =========================================================================
-    // 7. MULTIMEDIA DINÁMICA INDEFINIDA (REEMPLAZA AL VIEJO MÓDULO 7 EN BASE64)
-    // =========================================================================
     function agregarNuevaTarjetaFoto() {
         const fotoId = "foto_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         const contenedor = document.getElementById('contenedor-fotos-dinamico');
@@ -866,18 +877,14 @@
                 </select>
             </div>
         `;
-        
         contenedor.appendChild(tarjeta);
         listaFotosDinamicas.push({ id: fotoId, base64: "" });
     }
 
     function eliminarTarjetaFoto(fotoId) {
-        if (listaFotosDinamicas.length <= 1) {
-            alert("Aviso: Debe mantener al menos una tarjeta fotográfica para el reporte técnico.");
-            return;
-        }
-        const elementoTarjeta = document.getElementById('card_' + fotoId);
-        if (elementoTarjeta) elementoTarjeta.remove();
+        if (listaFotosDinamicas.length <= 1) { alert("Aviso: Requiere al menos una foto."); return; }
+        const el = document.getElementById('card_' + fotoId);
+        if (el) el.remove();
         listaFotosDinamicas = listaFotosDinamicas.filter(f => f.id !== fotoId);
     }
 
@@ -888,13 +895,9 @@
             lector.onload = function(e) {
                 const base64Str = e.target.result;
                 const preview = document.getElementById('prev_' + fotoId);
-                if (preview) {
-                    preview.style.backgroundImage = `url(${base64Str})`;
-                    preview.innerText = "";
-                }
-                
-                const indice = listaFotosDinamicas.findIndex(f => f.id === fotoId);
-                if (indice !== -1) listaFotosDinamicas[indice].base64 = base64Str;
+                if (preview) { preview.style.backgroundImage = `url(${base64Str})`; preview.innerText = ""; }
+                const idx = listaFotosDinamicas.findIndex(f => f.id === fotoId);
+                if (idx !== -1) listaFotosDinamicas[idx].base64 = base64Str;
             };
             lector.readAsDataURL(archivo);
         }
@@ -903,32 +906,18 @@
     // 8. PERSISTENCIA INTEGRAL SEGURA (MAPPING DE MÓDULOS DEL REPORTE)
     // =========================================================================
    function guardarFormularioMaestro() {
-        // 1. Validación inicial obligatoria de existencia del ID
-        const pIdElement = document.getElementById('v003');
-        const pId = pIdElement ? pIdElement.value.trim() : "";
+        const pId = document.getElementById('v003').value.trim();
         const dbLocal = localStorage.getItem('siap_inventario_puentes');
+        const llaveCompuesta = `${proyectoSeleccionado.toUpperCase()}_${pId}`;
 
-        if (!pId) {
-            alert("Error: El campo de ID de puente (v003) no se encuentra o está vacío.");
-            return;
+        if (!pId) { alert("Error: Ingrese el ID del puente."); return; }
+        if (!dbLocal || !JSON.parse(dbLocal)[llaveCompuesta]) { 
+            alert(`Error: El ID [${pId}] no existe en el proyecto activo [${proyectoSeleccionado}].`); 
+            return; 
         }
 
-        if (!dbLocal || !JSON.parse(dbLocal)[pId]) {
-            alert("Error: Ingrese un ID de puente válido que exista en la base de datos local.");
-            return;
-        }
-
-        // 2. Procesamiento del promedio del módulo 8
-        let promedioFinal = "4.00";
-        if (typeof calcularTotalCalificacion === "function") {
-            promedioFinal = calcularTotalCalificacion();
-        }
-
-        // 3. Función auxiliar de recolección segura de valores del DOM
-        const getVal = (id) => {
-            const el = document.getElementById(id);
-            return el ? el.value : "";
-        };
+        let promedioFinal = typeof calcularTotalCalificacion === "function" ? calcularTotalCalificacion() : "4.00";
+        const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
 
         const registroCompleto = {
             folio: folioUnico,
@@ -1023,14 +1012,10 @@
                 .filter(f => f.data !== "") // Excluye del guardado las tarjetas vacías sin archivo cargado
         };
 
-       // 5. Inyección física en el almacenamiento persistente
-        const llaveClave = 'siap_folio_' + registroCompleto.folio;
-        localStorage.setItem(llaveClave, JSON.stringify(registroCompleto));
-        
-        alert(`Formulario de Inspección ${registroCompleto.folio} exportado exitosamente.`);
-        location.href = 'reportes.html?folio=' + registroCompleto.folio;
+       localStorage.setItem('siap_folio_' + folioUnico, JSON.stringify(registroCompleto));
+        alert(`Formulario guardado. Folio: ${folioUnico}`);
+        location.href = 'reportes.html?folio=' + folioUnico;
     }
-
 </script>
 </body>
 </html>
